@@ -25,6 +25,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - name: Shutdown Ubuntu MySQL (SUDO)
         run: sudo service mysql stop # Shutdown the Default MySQL, "sudo" is necessary, please not remove it
 
@@ -45,6 +49,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
+        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
 
       - name: Copy `test.ci.env` > `test.env`
