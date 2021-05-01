@@ -41,5 +41,8 @@ jobs:
       - name: Install dependencies
         run: yarn --frozen-lockfile
 
+      - name: Copy `test.ci.env` > `.env`
+        run: cp ./test.ci.env .env
+
       - name: Run unit tests
         run: yarn test

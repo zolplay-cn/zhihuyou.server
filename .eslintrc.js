@@ -4,7 +4,6 @@ module.exports = {
     project: 'tsconfig.json',
     sourceType: 'module',
   },
-  ignorePatterns: ['node_modules/*', 'dist/*', '.eslintrc.js', '!.prettierrc.js'], // We don't want to lint generated files nor node_modules, but we want to lint .prettierrc.js (ignored by default by eslint)
   plugins: ['@typescript-eslint/eslint-plugin'],
   extends: [
     'plugin:@typescript-eslint/recommended',
@@ -16,10 +15,12 @@ module.exports = {
     node: true,
     jest: true,
   },
+  ignorePatterns: ['.eslintrc.js'], // !!! taken from https://github.com/nestjs/nest/issues/4900#issuecomment-730482823
   rules: {
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/no-non-null-assertion': 'off',
   },
 };
