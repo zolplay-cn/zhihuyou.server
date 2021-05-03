@@ -1,24 +1,39 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '~/app.module';
+import { Test, TestingModule } from '@nestjs/testing'
+import { AppModule } from '~/app.module'
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify'
+import { HttpStatus } from '@nestjs/common'
 
 describe('AppController (e2e)', () => {
-  let app: INestApplication;
+  let app: NestFastifyApplication
 
   beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    }).compile()
 
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
+    app = moduleRef.createNestApplication<NestFastifyApplication>(
+      new FastifyAdapter()
+    )
+    await app.init()
+    await app.getHttpAdapter().getInstance().ready()
+  })
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
-  });
-});
+  afterAll(async () => {
+    await app.close()
+  })
+
+  it('/ (GET)', async () => {
+    return app
+      .inject({
+        method: 'GET',
+        url: '/',
+      })
+      .then(({ statusCode, payload }) => {
+        expect(statusCode).toEqual(HttpStatus.OK)
+        expect(payload).toEqual('Hello World!')
+      })
+  })
+})

@@ -13,9 +13,19 @@
     "baseUrl": "./",
     "incremental": true,
     "paths": {
-      "~/*": ["./src/*"]
-    }
+      "~/*": [
+        "./src/*"
+      ],
+      "~test/*": [
+        "./test/*"
+      ],
+      "types/*": ["./types/*"]
+    },
+    "strict": true
   },
-  "include": ["src", "test"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["src", "test", "types", "prisma"],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

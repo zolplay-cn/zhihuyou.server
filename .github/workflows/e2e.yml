@@ -49,11 +49,10 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile
 
-      - name: Copy `test.ci.env` > `test.env`
-        run: cp ./test.ci.env ./test.env
+      - name: Copy `test.ci.env` > `.env`
+        run: cp ./test.ci.env .env
 
       - name: Run e2e tests
         run: yarn test:e2e
