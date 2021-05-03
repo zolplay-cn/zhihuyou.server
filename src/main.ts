@@ -7,6 +7,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify'
+import helmet from 'fastify-helmet'
 ;(async () => {
   const logger = new Logger()
 
@@ -27,6 +28,7 @@ import {
       logger.debug('CORS enabled for App')
     }
 
+    await app.register(helmet)
     await app.listen(appConfig?.port || 3000)
 
     logger.debug(`App is running at ${await app.getUrl()}`)

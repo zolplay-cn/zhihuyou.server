@@ -18,11 +18,12 @@
       ],
       "~test/*": [
         "./test/*"
-      ]
+      ],
+      "types/*": ["./types/*"]
     },
     "strict": true
   },
-  "include": ["src/**/*.ts", "test", "prisma"],
+  "include": ["src", "test", "types", "prisma"],
   "exclude": [
     "node_modules",
     "dist"
