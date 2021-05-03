@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Reaction` MODIFY `name` ENUM('LIKE', 'LOVE', 'CLAP', 'DISLIKE', 'SHOCKED', 'COOL') NOT NULL DEFAULT 'LIKE';
