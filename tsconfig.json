@@ -23,7 +23,7 @@
     },
     "strict": true
   },
-  "include": ["src", "test", "types", "prisma"],
+  "include": ["src/**/*.ts", "test/**/*.ts", "types", "prisma"],
   "exclude": [
     "node_modules",
     "dist"
