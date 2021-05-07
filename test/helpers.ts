@@ -1,25 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from '~/app.module'
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify'
-import { ValidationPipe } from '@nestjs/common'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import * as execa from 'execa'
 
 /**
  * Bootstraps and sets up the nest app.
  */
-export async function setupNestApp(): Promise<NestFastifyApplication> {
+export async function setupNestApp() {
   const moduleRef: TestingModule = await Test.createTestingModule({
     imports: [AppModule],
   }).compile()
 
-  const app = moduleRef.createNestApplication<NestFastifyApplication>(
-    new FastifyAdapter()
-  )
-  await app.init()
-  await app.getHttpAdapter().getInstance().ready()
+  const app = moduleRef.createNestApplication()
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -30,6 +22,8 @@ export async function setupNestApp(): Promise<NestFastifyApplication> {
       },
     })
   )
+
+  await app.init()
 
   return app
 }
@@ -45,9 +39,7 @@ export const resetsDatabaseAfterEach = () => {
   afterEach(async () => await resetDatabase())
 }
 
-export const resetsDatabaseAfterAll = (
-  getApp: () => NestFastifyApplication
-) => {
+export const resetsDatabaseAfterAll = (getApp: () => INestApplication) => {
   afterAll(async () => {
     await getApp().close()
     await resetDatabase()

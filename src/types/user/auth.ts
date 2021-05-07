@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator'
 
-export class LoginArgs {
+export class LoginDto {
   @IsNotEmpty()
   @IsEmail()
   email!: string
@@ -16,7 +16,7 @@ export class LoginArgs {
   password!: string
 }
 
-export class RegisterArgs {
+export class RegisterDto {
   @IsNotEmpty()
   @IsEmail()
   email!: string

@@ -1,10 +1,10 @@
-import { NestFastifyApplication } from '@nestjs/platform-fastify'
-import { HttpStatus } from '@nestjs/common'
+import { HttpStatus, INestApplication } from '@nestjs/common'
+import * as request from 'supertest'
 import { resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import { DatabaseService } from '~/services/database.service'
 
 describe('AuthController (e2e)', () => {
-  let app: NestFastifyApplication
+  let app: INestApplication
   let db: DatabaseService
 
   beforeAll(async () => {
@@ -15,15 +15,10 @@ describe('AuthController (e2e)', () => {
   resetsDatabaseAfterAll(() => app)
 
   describe('@POST /auth/login', () => {
-    it('should throw error if user not found', async () => {
-      return app
-        .inject({
-          method: 'POST',
-          url: '/auth/login',
-        })
-        .then(({ statusCode, payload }) => {
-          expect(statusCode).toEqual(HttpStatus.OK)
-        })
+    it('should have validation error with insufficient payload', async () => {
+      return request(app.getHttpServer())
+        .post('/auth/login')
+        .expect(HttpStatus.BAD_REQUEST)
     })
   })
 })

@@ -6,7 +6,7 @@ dotenv.config({
 })
 
 async function main() {
-  await execa.command('npm run test:migrate')
+  await execa.command('yarn test:migrate')
 }
 
-main()
+main().catch(console.error)
