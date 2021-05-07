@@ -15,9 +15,9 @@ import {
   AuthToken,
   authTokenKey,
   AuthTokenPayloadForSigning,
-  LoginArgs,
-  RegisterArgs,
-} from 'types/user/auth'
+  LoginDto,
+  RegisterDto,
+} from '~/types/user/auth'
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 
 @Injectable()
@@ -43,7 +43,7 @@ export class AuthService {
    * @throws NotFoundException
    * @throws BadRequestException
    */
-  async login({ email, password }: LoginArgs): Promise<AuthToken> {
+  async login({ email, password }: LoginDto): Promise<AuthToken> {
     const user = await this.db.user.findUnique({
       where: {
         email,
@@ -74,7 +74,7 @@ export class AuthService {
     email,
     password,
     ...rest
-  }: RegisterArgs): Promise<AuthToken> {
+  }: RegisterDto): Promise<AuthToken> {
     const hashedPassword = await this.hash.make(password)
 
     try {

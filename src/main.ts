@@ -3,36 +3,37 @@ import { AppModule } from './app.module'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AppConfig, ConfigKey, CorsConfig } from './config/config.interface'
-import {
-  FastifyAdapter,
-  NestFastifyApplication,
-} from '@nestjs/platform-fastify'
-import helmet from 'fastify-helmet'
-;(async () => {
-  const logger = new Logger()
+import { NestExpressApplication } from '@nestjs/platform-express'
+import * as helmet from 'helmet'
 
-  try {
-    const app = await NestFactory.create<NestFastifyApplication>(
-      AppModule,
-      new FastifyAdapter()
-    )
+const logger = new Logger()
 
-    app.useGlobalPipes(new ValidationPipe())
+async function main() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule)
 
-    const configService = app.get(ConfigService)
-    const appConfig = configService.get<AppConfig>(ConfigKey.App)
-    const corsConfig = configService.get<CorsConfig>(ConfigKey.CORS)
+  const configService = app.get(ConfigService)
+  const appConfig = configService.get<AppConfig>(ConfigKey.App)
+  const corsConfig = configService.get<CorsConfig>(ConfigKey.CORS)
 
-    if (corsConfig?.enabled) {
-      app.enableCors()
-      logger.debug('CORS enabled for App')
-    }
-
-    await app.register(helmet)
-    await app.listen(appConfig?.port || 3000)
-
-    logger.debug(`App is running at ${await app.getUrl()}`)
-  } catch (e) {
-    logger.error(e)
+  if (corsConfig?.enabled) {
+    app.enableCors()
+    logger.debug('CORS enabled for App')
   }
-})()
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      validationError: {
+        target: false,
+      },
+    })
+  )
+
+  await app.use(helmet())
+  await app.listen(appConfig?.port || 3000)
+
+  logger.debug(`App is running at ${await app.getUrl()}`)
+}
+
+main().catch(logger.error)
