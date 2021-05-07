@@ -108,4 +108,135 @@ describe('AuthController (e2e)', () => {
         })
     })
   })
+
+  describe('@POST /auth/register', () => {
+    const uri = '/auth/register'
+
+    it('should return email validation errors', async () => {
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({ password: 'password' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject([
+            'email must be an email',
+            'email should not be empty',
+          ])
+        })
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({ email: 'test', password: 'password' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject(['email must be an email'])
+        })
+    })
+
+    it('should return password validation errors', async () => {
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({ email: faker.internet.email() })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject([
+            'password must be a string',
+            'password must be longer than or equal to 6 characters',
+            'password should not be empty',
+          ])
+        })
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({ email: faker.internet.email(), password: 'pass' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject([
+            'password must be longer than or equal to 6 characters',
+          ])
+        })
+    })
+
+    it('should return firstname or lastname validation errors', async () => {
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({
+          email: faker.internet.email(),
+          firstname: 123,
+          password: 'password',
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject(['firstname must be a string'])
+        })
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({
+          email: faker.internet.email(),
+          lastname: 123,
+          password: 'password',
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject(['lastname must be a string'])
+        })
+    })
+
+    it('should return conflict if email already exists', async () => {
+      const email = faker.internet.email()
+
+      await db.user.create({
+        data: {
+          email,
+          password: '',
+          firstname: faker.name.firstName(),
+          lastname: faker.name.lastName(),
+        },
+      })
+
+      return request(app.getHttpServer())
+        .post(uri)
+        .send({
+          email,
+          firstname: faker.name.firstName(),
+          lastname: faker.name.lastName(),
+          password: 'password',
+        })
+        .expect(HttpStatus.CONFLICT)
+        .then(({ body }) => {
+          expect(body.message).toBe(`Email ${email} already exists.`)
+        })
+    })
+
+    it('should return conflict if email already exists', async () => {
+      const email = faker.internet.email()
+      const password = 'password'
+      const firstname = faker.name.firstName()
+      const lastname = faker.name.lastName()
+
+      await request(app.getHttpServer())
+        .post(uri)
+        .send({
+          email,
+          firstname,
+          lastname,
+          password,
+        })
+        .expect(HttpStatus.CREATED)
+        .then(({ body }) => {
+          expect(body).toHaveProperty('accessToken')
+          expect(body).toHaveProperty('refreshToken')
+        })
+
+      const user = await db.user.findUnique({
+        where: { email },
+      })
+      expect(user).toMatchObject({
+        email,
+        firstname,
+        lastname,
+      })
+      expect(
+        await app.get(HashService).validate(password, user?.password || '')
+      ).toBeTruthy()
+    })
+  })
 })
