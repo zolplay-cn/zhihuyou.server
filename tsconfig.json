@@ -16,14 +16,14 @@
       "~/*": [
         "./src/*"
       ],
-      "~test/*": [
+      "test/*": [
         "./test/*"
-      ],
-      "types/*": ["./types/*"]
+      ]
     },
     "strict": true
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "types", "prisma"],
+  "include": ["src/**/*.ts", "test/**/*.ts",
+    "src/types", "prisma"],
   "exclude": [
     "node_modules",
     "dist"

@@ -5,20 +5,13 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify'
 import { HttpStatus } from '@nestjs/common'
+import { setupNestApp } from 'test/helpers'
 
 describe('AppController (e2e)', () => {
   let app: NestFastifyApplication
 
-  beforeEach(async () => {
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile()
-
-    app = moduleRef.createNestApplication<NestFastifyApplication>(
-      new FastifyAdapter()
-    )
-    await app.init()
-    await app.getHttpAdapter().getInstance().ready()
+  beforeAll(async () => {
+    app = await setupNestApp()
   })
 
   afterAll(async () => {

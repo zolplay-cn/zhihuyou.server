@@ -6,25 +6,25 @@ import {
   MinLength,
 } from 'class-validator'
 
-declare class LoginArgs {
+export class LoginArgs {
   @IsNotEmpty()
   @IsEmail()
-  email: string
+  email!: string
 
   @IsNotEmpty()
   @IsString()
-  password: string
+  password!: string
 }
 
-declare class RegisterArgs {
+export class RegisterArgs {
   @IsNotEmpty()
   @IsEmail()
-  email: string
+  email!: string
 
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
-  password: string
+  password!: string
 
   @IsOptional()
   @IsString()
@@ -35,13 +35,13 @@ declare class RegisterArgs {
   lastname?: string
 }
 
-declare const authTokenKey = 'userId'
+export const authTokenKey = 'userId'
 
-declare interface AuthTokenPayloadForSigning {
+export interface AuthTokenPayloadForSigning {
   [authTokenKey]: string
 }
 
-declare interface AuthToken {
+export interface AuthToken {
   accessToken: string
 
   refreshToken: string

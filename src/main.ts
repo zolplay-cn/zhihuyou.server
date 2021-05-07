@@ -17,7 +17,15 @@ import helmet from 'fastify-helmet'
       new FastifyAdapter()
     )
 
-    app.useGlobalPipes(new ValidationPipe())
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        validationError: {
+          target: false,
+        },
+      })
+    )
 
     const configService = app.get(ConfigService)
     const appConfig = configService.get<AppConfig>(ConfigKey.App)

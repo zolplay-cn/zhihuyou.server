@@ -17,7 +17,7 @@ import {
   AuthTokenPayloadForSigning,
   LoginArgs,
   RegisterArgs,
-} from 'types/user/auth'
+} from '~/types/user/auth'
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 
 @Injectable()
