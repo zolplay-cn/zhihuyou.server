@@ -1,4 +1,8 @@
 <h1 align="center">知忽悠 Zhihuyou Server</h1>
+<p align='center'>
+<a href='https://github.com/zolran-studio/zhihuyou.server/workflows/Unit%20Tests'><img src='https://github.com/zolran-studio/zhihuyou.server/workflows/Unit%20Tests/badge.svg' /></a>
+<a href='https://github.com/zolran-studio/zhihuyou.server/workflows/E2E%20Tests'><img src='https://github.com/zolran-studio/zhihuyou.server/workflows/E2E%20Tests/badge.svg' /></a>
+</p>
 
 - [Nest](https://github.com/nestjs/nest) 7
 - TypeScript 4.
