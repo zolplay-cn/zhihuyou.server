@@ -134,4 +134,13 @@ export class AuthService {
       throw new UnauthorizedException()
     }
   }
+
+  /**
+   * Validates user by user's ID.
+   *
+   * @param userId
+   */
+  validateUser(userId: string) {
+    return this.db.user.findUnique({ where: { id: userId } })
+  }
 }

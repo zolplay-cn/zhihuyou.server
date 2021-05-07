@@ -4,6 +4,8 @@ import * as faker from 'faker'
 import { resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
+import { AuthService } from '~/services/users/auth.service'
+import { authTokenKey } from '~/types/user/auth'
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication
@@ -15,6 +17,42 @@ describe('AuthController (e2e)', () => {
   })
 
   resetsDatabaseAfterAll(() => app)
+
+  describe('@GET /auth/me', () => {
+    const uri = '/auth/me'
+
+    it('should return 401 if not logged in', () => {
+      return request(app.getHttpServer())
+        .get(uri)
+        .expect(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('should return my info when logged in', async () => {
+      const email = faker.internet.email()
+      const password = faker.internet.password(8)
+
+      const user = await db.user.create({
+        data: {
+          email,
+          password: await app.get(HashService).make(password),
+        },
+      })
+      const tokens = app
+        .get(AuthService)
+        .generateToken({ [authTokenKey]: user.id })
+
+      return request(app.getHttpServer())
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject({
+            id: user.id,
+            email,
+          })
+        })
+    })
+  })
 
   describe('@POST /auth/login', () => {
     const uri = '/auth/login'
