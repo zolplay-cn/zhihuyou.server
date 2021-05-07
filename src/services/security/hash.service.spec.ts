@@ -8,6 +8,7 @@ describe('HashService', () => {
     expiresIn: '2m',
     refreshIn: '30d',
     bcryptSaltOrRound: 10,
+    jwtSecret: 'secret',
   }
   let service: HashService
 
