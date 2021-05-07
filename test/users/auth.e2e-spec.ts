@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common'
 import * as request from 'supertest'
 import * as faker from 'faker'
-import { resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
+import { createUser, resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
 import { AuthService } from '~/services/users/auth.service'
@@ -28,18 +28,7 @@ describe('AuthController (e2e)', () => {
     })
 
     it('should return my info when logged in', async () => {
-      const email = faker.internet.email()
-      const password = faker.internet.password(8)
-
-      const user = await db.user.create({
-        data: {
-          email,
-          password: await app.get(HashService).make(password),
-        },
-      })
-      const tokens = app
-        .get(AuthService)
-        .generateToken({ [authTokenKey]: user.id })
+      const { user, tokens } = await createUser(app)
 
       return request(app.getHttpServer())
         .get(uri)
@@ -48,7 +37,7 @@ describe('AuthController (e2e)', () => {
         .then(({ body }) => {
           expect(body).toMatchObject({
             id: user.id,
-            email,
+            email: user.email,
           })
         })
     })
@@ -121,6 +110,16 @@ describe('AuthController (e2e)', () => {
         .then(({ body }) => {
           expect(body.message).toBe('Invalid credentials')
         })
+    })
+
+    it('should return FORBIDDEN if not guest', async () => {
+      const { user, tokens } = await createUser(app)
+
+      return request(app.getHttpServer())
+        .post(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .send({ email: user.email, password: 'password' })
+        .expect(HttpStatus.FORBIDDEN)
     })
 
     it('should return tokens correctly', async () => {

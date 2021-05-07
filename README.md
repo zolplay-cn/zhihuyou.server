@@ -2,6 +2,7 @@
 <p align='center'>
 <a href='https://github.com/zolran-studio/zhihuyou.server/workflows/Unit%20Tests'><img src='https://github.com/zolran-studio/zhihuyou.server/workflows/Unit%20Tests/badge.svg' /></a>
 <a href='https://github.com/zolran-studio/zhihuyou.server/workflows/E2E%20Tests'><img src='https://github.com/zolran-studio/zhihuyou.server/workflows/E2E%20Tests/badge.svg' /></a>
+<img src="https://codecov.io/gh/zolran-studio/zhihuyou.server/branch/main/graph/badge.svg?token=C3Z7R0E9L3"/>
 </p>
 
 - [Nest](https://github.com/nestjs/nest) 7

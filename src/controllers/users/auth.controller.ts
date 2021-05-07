@@ -11,6 +11,7 @@ import { LoginDto, RegisterDto } from '~/types/user/auth'
 import { AuthService } from '~/services/users/auth.service'
 import { AuthGuard } from '~/guards/auth.guard'
 import { User } from '@prisma/client'
+import { GuestGuard } from '~/guards/guest.guard'
 
 @Controller('auth')
 export class AuthController {
@@ -27,11 +28,13 @@ export class AuthController {
   }
 
   @Post('login')
+  @UseGuards(GuestGuard)
   async login(@Body() data: LoginDto) {
     return this.service.login(data)
   }
 
   @Post('register')
+  @UseGuards(GuestGuard)
   async register(@Body() data: RegisterDto) {
     return this.service.register(data)
   }
