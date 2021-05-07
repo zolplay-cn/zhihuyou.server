@@ -54,5 +54,8 @@ jobs:
       - name: Copy `test.ci.env` > `.env.test`
         run: cp ./test.ci.env .env.test
 
-      - name: Run e2e tests
-        run: yarn test:e2e
+      - name: Run e2e tests w/ coverage
+        run: yarn e2e:cov
+
+      - name: Send coverage report
+        uses: codecov/codecov-action@v1
