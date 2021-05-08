@@ -7,6 +7,7 @@
 
 - [Nest](https://github.com/nestjs/nest) 7
 - TypeScript 4.
+- [Prisma](https://prisma.io) 2
 
 ## Installation
 
@@ -26,6 +27,8 @@ $ yarn migrate:dev
 # production mode
 $ yarn start:prod
 ```
+
+Visit [http://localhost:$port/api](http://localhost:3001/api) to see OpenAPI docs.
 
 ## Test
 
