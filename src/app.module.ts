@@ -6,7 +6,7 @@ import config from './config'
 import { UserModule } from '~/modules/user.module'
 import { CoreModule } from '~/modules/core.module'
 import { AuthModule } from '~/modules/users/auth.module'
-import { PostModule } from '~/modules/post.module'
+import { PostsModule } from '~/modules/posts.module'
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { PostModule } from '~/modules/post.module'
     CoreModule,
     AuthModule,
     UserModule,
-    PostModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

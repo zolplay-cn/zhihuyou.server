@@ -9,19 +9,19 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common'
-import { PostService } from '~/services/posts/post.service'
+import { PostsService } from '~/services/posts.service'
 import { AuthGuard } from '~/guards/auth.guard'
-import { PostSubmitDto } from '~/types/post'
-import { User } from '~/types/user/user.decorator'
+import { CreatePostDto, UpdatePostDto } from '~/types/post'
+import { User } from '~/core/decorators/user.decorator'
 
 @Controller('posts')
 export class PostsController {
   @Inject()
-  private readonly service!: PostService
+  private readonly service!: PostsService
 
-  @Post('submit')
+  @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() data: PostSubmitDto, @User('id') id: string) {
+  async create(@Body() data: CreatePostDto, @User('id') id: string) {
     return this.service.create(data, id)
   }
 
@@ -29,7 +29,7 @@ export class PostsController {
   @UseGuards(AuthGuard)
   async save(
     @Param('id') id: string,
-    @Body() data: PostSubmitDto,
+    @Body() data: UpdatePostDto,
     @User('id') userId: string
   ) {
     return this.service.update(data, id, userId)
@@ -45,7 +45,7 @@ export class PostsController {
 
   @Get()
   async all() {
-    return this.service.all()
+    return this.service.getAll()
   }
 
   @Get(':id')

@@ -33,36 +33,33 @@ describe('PostController (e2e)', () => {
     it('should return 404 if no published record in the database', async () => {
       await http()
         .get(uri)
-        .expect(HttpStatus.NOT_FOUND)
+        .expect(HttpStatus.OK)
         .then(({ body }) => {
-          expect(body.message).toBe('no posts had found')
+          expect(body).toMatchObject([])
         })
 
-      let counter = 10
-      while (counter) {
+      for (const item in Array(10).fill('')) {
         await db.post.create({ data: getFakerPost() })
-        counter--
       }
 
       await http()
         .get(uri)
-        .expect(HttpStatus.NOT_FOUND)
+        .expect(HttpStatus.OK)
         .then(({ body }) => {
-          expect(body.message).toBe('no posts had found')
+          expect(body).toMatchObject([])
         })
     })
 
     it('should return 200 and posts if posts have been published in the database', async () => {
       const posts: Array<any> = []
-      let counter = 10
-      while (counter) {
-        const form = getFakerPost()
-        form.published = true
+
+      for (const item of Array(10).fill('')) {
+        const post = getFakerPost()
+        post.published = true
         const { createdAt, updatedAt, ...rest } = await db.post.create({
-          data: form,
+          data: post,
         })
         posts.push(rest)
-        counter--
       }
 
       return http()
@@ -84,7 +81,7 @@ describe('PostController (e2e)', () => {
         .get(uri + `/${id}`)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`Not post found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
         })
     })
 
@@ -109,7 +106,7 @@ describe('PostController (e2e)', () => {
   })
 
   describe('@POST /posts/submit', () => {
-    const uri = '/posts/submit'
+    const uri = '/posts'
     const form = getFakerPost()
 
     it('should return 201 if create a post successful', async () => {
@@ -188,7 +185,7 @@ describe('PostController (e2e)', () => {
         .send(form)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`not post found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
         })
     })
     it('should return 400 if update a post that is not my own', async () => {
@@ -211,7 +208,9 @@ describe('PostController (e2e)', () => {
         .send(form)
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe("you haven't permission to update")
+          expect(body.message).toBe(
+            "you don't have the permission to update this post"
+          )
         })
     })
     it('should return post validation errors', async () => {
@@ -223,19 +222,15 @@ describe('PostController (e2e)', () => {
           authorId: user.id,
         },
       })
+      const { createdAt, updatedAt, ...matchPost } = post
 
       return http()
         .put(uri + post.id)
         .auth(tokens.accessToken, { type: 'bearer' })
         .send({})
-        .expect(HttpStatus.BAD_REQUEST)
+        .expect(HttpStatus.OK)
         .then(({ body }) => {
-          expect(body.message).toMatchObject([
-            'title must be a string',
-            'title should not be empty',
-            'published must be a boolean value',
-            'published should not be empty',
-          ])
+          expect(body).toMatchObject(matchPost)
         })
     })
   })
@@ -270,7 +265,7 @@ describe('PostController (e2e)', () => {
         })
     })
     it('should return 404 if delete a post that not found', async () => {
-      const { tokens, post } = await commonPreform()
+      const { tokens } = await commonPreform()
       const id = faker.datatype.uuid()
 
       return http()
@@ -278,7 +273,7 @@ describe('PostController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`not post found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
         })
     })
     it('should return 400 if delete a post that is not my own', async () => {
@@ -290,7 +285,9 @@ describe('PostController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe("you haven't permission to update")
+          expect(body.message).toBe(
+            "you don't have the permission to delete this post"
+          )
         })
     })
   })

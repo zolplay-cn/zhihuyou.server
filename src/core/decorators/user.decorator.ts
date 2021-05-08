@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt'
 import config from '~/config/index'
 import { ConfigKey } from '~/config/config.interface'
 import { AuthTokenPayloadForSigning } from '~/types/user/auth'
+import { isNil } from 'lodash'
 
 export const User = createParamDecorator(
   (data: string, ctx: ExecutionContext) => {
@@ -10,7 +11,7 @@ export const User = createParamDecorator(
     const bearerToken = request.header('Authorization')?.replace('Bearer ', '')
     let user = request.user
 
-    if (bearerToken && user === undefined) {
+    if (bearerToken && isNil(user)) {
       const jwtService = new JwtService({})
       const security = config()[ConfigKey.Security]
       const secret = security?.jwtSecret

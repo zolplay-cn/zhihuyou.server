@@ -5,83 +5,88 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { DatabaseService } from '~/services/database.service'
-import { PostSubmitDto } from '~/types/post'
+import { CreatePostDto, UpdatePostDto } from '~/types/post'
 import { Post } from '@prisma/client'
 
 @Injectable()
-export class PostService {
+export class PostsService {
   @Inject()
   private readonly db!: DatabaseService
 
   /**
-   * create a new post
+   * Create a new post
    *
-   * @param submit
+   * @param data
    * @param authorId
    */
-  async create(submit: PostSubmitDto, authorId: string): Promise<Post> {
+  async create(data: CreatePostDto, authorId: string): Promise<Post> {
     return await this.db.post.create({
       data: {
+        ...data,
         authorId,
-        ...submit,
       },
     })
   }
 
-  /**
-   * update a post
-   * @param submit
+  /*
+   * Update a post
+   *
+   * @param data
    * @param id
    * @param authorId
    */
   async update(
-    submit: PostSubmitDto,
+    data: UpdatePostDto,
     id: string,
     authorId: string
   ): Promise<Post> {
     let post = await this.db.post.findFirst({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`not post found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}`)
     }
 
     if (post.authorId !== authorId) {
-      throw new BadRequestException("you haven't permission to update")
+      throw new BadRequestException(
+        "you don't have the permission to update this post"
+      )
     }
 
     post = await this.db.post.update({
       where: { id },
-      data: submit,
+      data: data,
     })
 
     return post
   }
 
   /**
-   * delete a post by id
+   * Delete a post by id
    * @param id
    * @param authorId
    */
   async delete(id: string, authorId: string): Promise<void> {
-    const post = await this.db.post.findFirst({ where: { id } })
+    const post = await this.db.post.findUnique({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`not post found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}`)
     }
 
     if (post.authorId !== authorId) {
-      throw new BadRequestException("you haven't permission to update")
+      throw new BadRequestException(
+        "you don't have the permission to delete this post"
+      )
     }
 
     try {
-      this.db.post.delete({ where: { id } })
+      await this.db.post.delete({ where: { id } })
     } catch (e) {
       throw new Error(e)
     }
   }
 
   /**
-   * get a post by post_id
+   * Get a post by post_id
    *
    * @param id post_id
    */
@@ -94,26 +99,20 @@ export class PostService {
     })
 
     if (!post) {
-      throw new NotFoundException(`Not post found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}`)
     }
 
     return post
   }
 
   /**
-   * get all posts
+   * Get all posts
    */
-  async all(): Promise<Array<Post>> {
-    const posts = await this.db.post.findMany({
+  async getAll(): Promise<Array<Post>> {
+    return await this.db.post.findMany({
       where: {
         published: true,
       },
     })
-
-    if (posts.length === 0) {
-      throw new NotFoundException('no posts had found')
-    }
-
-    return posts
   }
 }

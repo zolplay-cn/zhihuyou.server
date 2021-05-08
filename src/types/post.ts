@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
-export class PostSubmitDto {
+export class CreatePostDto {
   @IsNotEmpty()
   @IsString()
   title!: string
@@ -13,3 +13,5 @@ export class PostSubmitDto {
   @IsString()
   content?: string
 }
+
+export type UpdatePostDto = Partial<CreatePostDto>
