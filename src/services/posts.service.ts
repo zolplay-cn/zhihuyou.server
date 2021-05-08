@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { DatabaseService } from '~/services/database.service'
 import { CreatePostDto, UpdatePostDto } from '~/types/post'
@@ -14,7 +15,7 @@ export class PostsService {
   private readonly db!: DatabaseService
 
   /**
-   * Create a new post
+   * Creates a new post.
    *
    * @param data
    * @param authorId
@@ -29,7 +30,7 @@ export class PostsService {
   }
 
   /*
-   * Update a post
+   * Updates a post.
    *
    * @param data
    * @param id
@@ -43,12 +44,12 @@ export class PostsService {
     let post = await this.db.post.findFirst({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
     }
 
     if (post.authorId !== authorId) {
-      throw new BadRequestException(
-        "you don't have the permission to update this post"
+      throw new UnauthorizedException(
+        "You don't have the permission to update this post."
       )
     }
 
@@ -61,7 +62,8 @@ export class PostsService {
   }
 
   /**
-   * Delete a post by id
+   * Deletes a post by id.
+   *
    * @param id
    * @param authorId
    */
@@ -69,12 +71,12 @@ export class PostsService {
     const post = await this.db.post.findUnique({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
     }
 
     if (post.authorId !== authorId) {
       throw new BadRequestException(
-        "you don't have the permission to delete this post"
+        "You don't have the permission to delete this post."
       )
     }
 
@@ -86,7 +88,7 @@ export class PostsService {
   }
 
   /**
-   * Get a post by post_id
+   * Finds a post by id.
    *
    * @param id post_id
    */
@@ -99,14 +101,14 @@ export class PostsService {
     })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}`)
+      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
     }
 
     return post
   }
 
   /**
-   * Get all posts
+   * Gets all posts.
    */
   async getAll(): Promise<Array<Post>> {
     return await this.db.post.findMany({

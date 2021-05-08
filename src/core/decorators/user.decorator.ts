@@ -12,13 +12,13 @@ export const User = createParamDecorator(
     let user = request.user
 
     if (bearerToken && isNil(user)) {
-      const jwtService = new JwtService({})
-      const security = config()[ConfigKey.Security]
-      const secret = security?.jwtSecret
+      // No easy way to inject in a param decorator yet.
+      const secret = config()[ConfigKey.Security]?.jwtSecret
+      const jwtService = new JwtService({ secret })
 
-      const {
-        userId,
-      }: AuthTokenPayloadForSigning = jwtService.verify(bearerToken, { secret })
+      const { userId }: AuthTokenPayloadForSigning = jwtService.verify(
+        bearerToken
+      )
 
       user = {
         id: userId,

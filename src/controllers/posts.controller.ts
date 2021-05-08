@@ -19,6 +19,16 @@ export class PostsController {
   @Inject()
   private readonly service!: PostsService
 
+  @Get()
+  async getAll() {
+    return this.service.getAll()
+  }
+
+  @Get(':id')
+  async findById(@Param('id') id: string) {
+    return this.service.findById(id)
+  }
+
   @Post()
   @UseGuards(AuthGuard)
   async create(@Body() data: CreatePostDto, @User('id') id: string) {
@@ -27,7 +37,7 @@ export class PostsController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
-  async save(
+  async update(
     @Param('id') id: string,
     @Body() data: UpdatePostDto,
     @User('id') userId: string
@@ -41,15 +51,5 @@ export class PostsController {
     await this.service.delete(id, userId)
 
     return { id }
-  }
-
-  @Get()
-  async all() {
-    return this.service.getAll()
-  }
-
-  @Get(':id')
-  async findById(@Param('id') id: string) {
-    return this.service.findById(id)
   }
 }

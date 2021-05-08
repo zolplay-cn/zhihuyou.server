@@ -30,7 +30,7 @@ describe('PostController (e2e)', () => {
   describe('@GET /posts', () => {
     const uri = '/posts'
 
-    it('should return 404 if no published record in the database', async () => {
+    it('should return empty list if all posts are unpublished', async () => {
       await http()
         .get(uri)
         .expect(HttpStatus.OK)
@@ -50,10 +50,10 @@ describe('PostController (e2e)', () => {
         })
     })
 
-    it('should return 200 and posts if posts have been published in the database', async () => {
+    it('should return 200 and posts details', async () => {
       const posts: Array<any> = []
 
-      for (const item of Array(10).fill('')) {
+      for (const _ of Array(10).fill('')) {
         const post = getFakerPost()
         post.published = true
         const { createdAt, updatedAt, ...rest } = await db.post.create({
@@ -81,11 +81,11 @@ describe('PostController (e2e)', () => {
         .get(uri + `/${id}`)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}.`)
         })
     })
 
-    it('should return 200 and a post if post exists', async () => {
+    it('should return 200 with post details', async () => {
       const form = getFakerPost()
       form.published = true
       const post = await db.post.create({ data: form })
@@ -105,11 +105,11 @@ describe('PostController (e2e)', () => {
     })
   })
 
-  describe('@POST /posts/submit', () => {
+  describe('@POST /posts', () => {
     const uri = '/posts'
     const form = getFakerPost()
 
-    it('should return 201 if create a post successful', async () => {
+    it('should return 201 correctly', async () => {
       const { user, tokens } = await createUser(app)
 
       return http()
@@ -124,9 +124,11 @@ describe('PostController (e2e)', () => {
           })
         })
     })
-    it('should return unauthorized if user not logged in', async () => {
+
+    it('should return unauthorized if not logged in', async () => {
       return http().post(uri).send(form).expect(HttpStatus.UNAUTHORIZED)
     })
+
     it('should return post validation errors', async () => {
       const { tokens } = await createUser(app)
 
@@ -149,7 +151,7 @@ describe('PostController (e2e)', () => {
   describe('@PUT /posts/:id', () => {
     const uri = '/posts/'
 
-    it('should return 200 and updated post if updated post successful', async () => {
+    it('should return 200 with updated post details correctly', async () => {
       const { user, tokens } = await createUser(app)
       const form = getFakerPost()
       const post = await db.post.create({
@@ -174,7 +176,8 @@ describe('PostController (e2e)', () => {
           })
         })
     })
-    it('should return 404 if update not found post', async () => {
+
+    it('should return 404 if post does not exist', async () => {
       const id = faker.datatype.uuid()
       const { tokens } = await createUser(app)
       const form = getFakerPost()
@@ -185,10 +188,11 @@ describe('PostController (e2e)', () => {
         .send(form)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}.`)
         })
     })
-    it('should return 400 if update a post that is not my own', async () => {
+
+    it("should return 400 if user wants to update other users' posts", async () => {
       const { user } = await createUser(app)
       const { tokens } = await createUser(app)
       const form = getFakerPost()
@@ -206,13 +210,14 @@ describe('PostController (e2e)', () => {
         .put(uri + post.id)
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(form)
-        .expect(HttpStatus.BAD_REQUEST)
+        .expect(HttpStatus.UNAUTHORIZED)
         .then(({ body }) => {
           expect(body.message).toBe(
-            "you don't have the permission to update this post"
+            "You don't have the permission to update this post."
           )
         })
     })
+
     it('should return post validation errors', async () => {
       const { user, tokens } = await createUser(app)
       const form = getFakerPost()
@@ -251,7 +256,7 @@ describe('PostController (e2e)', () => {
       return { user, tokens, post }
     }
 
-    it('should return 200 and deleted id when deleted post successful', async () => {
+    it('should return 200 and deleted post id correctly', async () => {
       const { tokens, post } = await commonPreform()
 
       return http()
@@ -264,7 +269,8 @@ describe('PostController (e2e)', () => {
           })
         })
     })
-    it('should return 404 if delete a post that not found', async () => {
+
+    it('should return 404 if post cannot be found', async () => {
       const { tokens } = await commonPreform()
       const id = faker.datatype.uuid()
 
@@ -273,10 +279,11 @@ describe('PostController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`Post cannot be found for id: ${id}`)
+          expect(body.message).toBe(`Post cannot be found for id: ${id}.`)
         })
     })
-    it('should return 400 if delete a post that is not my own', async () => {
+
+    it("should return 400 if user wants to delete other users' posts", async () => {
       const { post } = await commonPreform()
       const { tokens } = await createUser(app)
 
@@ -286,7 +293,7 @@ describe('PostController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
           expect(body.message).toBe(
-            "you don't have the permission to delete this post"
+            "You don't have the permission to delete this post."
           )
         })
     })
