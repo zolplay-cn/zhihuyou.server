@@ -4,8 +4,6 @@ import * as faker from 'faker'
 import { createUser, resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
-import { AuthService } from '~/services/users/auth.service'
-import { authTokenKey } from '~/types/user/auth'
 
 describe('AuthController (e2e)', () => {
   let app: INestApplication
