@@ -275,4 +275,53 @@ describe('AuthController (e2e)', () => {
       ).toBeTruthy()
     })
   })
+
+  describe('@POST /auth/refresh', () => {
+    const uri = '/auth/refresh'
+
+    it('should return 401 if not logged in', function () {
+      return request(app.getHttpServer())
+        .post(uri)
+        .expect(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('should return 400 for validation errors', async function () {
+      const { tokens } = await createUser(app)
+
+      return request(app.getHttpServer())
+        .post(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toStrictEqual([
+            'refreshToken must be a string',
+            'refreshToken should not be empty',
+          ])
+        })
+    })
+
+    it('should return 401 if refresh token is invalid', async function () {
+      const { tokens } = await createUser(app)
+
+      return request(app.getHttpServer())
+        .post(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .send({ refreshToken: faker.datatype.string(20) })
+        .expect(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('should return new tokens correctly', async function () {
+      const { tokens } = await createUser(app)
+
+      return request(app.getHttpServer())
+        .post(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .send({ refreshToken: tokens.refreshToken })
+        .expect(HttpStatus.CREATED)
+        .then(({ body }) => {
+          expect(body).toHaveProperty('accessToken')
+          expect(body).toHaveProperty('refreshToken')
+        })
+    })
+  })
 })

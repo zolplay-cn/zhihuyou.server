@@ -46,6 +46,13 @@ export class RegisterDto {
   lastname?: string
 }
 
+export class RefreshTokenDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  refreshToken!: string
+}
+
 export const authTokenKey = 'userId'
 
 export interface AuthTokenPayloadForSigning {

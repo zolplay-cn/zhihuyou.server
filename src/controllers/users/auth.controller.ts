@@ -7,7 +7,12 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common'
-import { AuthTokenInstance, LoginDto, RegisterDto } from '~/types/user/auth'
+import {
+  AuthTokenInstance,
+  LoginDto,
+  RefreshTokenDto,
+  RegisterDto,
+} from '~/types/user/auth'
 import { AuthService } from '~/services/users/auth.service'
 import { AuthGuard } from '~/guards/auth.guard'
 import { GuestGuard } from '~/guards/guest.guard'
@@ -68,5 +73,14 @@ export class AuthController {
   })
   async register(@Body() data: RegisterDto) {
     return this.service.register(data)
+  }
+
+  @Post('refresh')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiUnauthorizedResponse({ description: 'Requires authentication.' })
+  @ApiCreatedResponse({ type: AuthTokenInstance })
+  async refresh(@Body() { refreshToken }: RefreshTokenDto) {
+    return this.service.refreshToken(refreshToken)
   }
 }
