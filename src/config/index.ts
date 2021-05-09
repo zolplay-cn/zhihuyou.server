@@ -13,7 +13,8 @@ const config: Config = {
   },
   [ConfigKey.Security]: {
     expiresIn: '2m',
-    refreshIn: '360d',
+    refreshIn: '1d',
+    refreshInForRemembering: '360d',
     bcryptSaltOrRound: 10,
     jwtSecret: process.env.JWT_SECRET || '',
   },

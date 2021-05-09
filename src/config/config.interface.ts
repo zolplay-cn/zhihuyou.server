@@ -21,6 +21,7 @@ export interface CorsConfig {
 export interface SecurityConfig {
   expiresIn: string
   refreshIn: string
+  refreshInForRemembering: string
   bcryptSaltOrRound: string | number
   jwtSecret: string
 }

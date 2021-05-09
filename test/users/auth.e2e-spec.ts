@@ -78,6 +78,18 @@ describe('AuthController (e2e)', () => {
         })
     })
 
+    it('should return remembers validation errors', async () => {
+      return request(app.getHttpServer())
+        .post(uri)
+        .send({ email: 'email@test.com', password: 'password', remembers: '1' })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject([
+            'remembers must be a boolean value',
+          ])
+        })
+    })
+
     it('should return 404 if user does not exist', async () => {
       const email = faker.internet.email()
       return request(app.getHttpServer())
@@ -136,7 +148,7 @@ describe('AuthController (e2e)', () => {
 
       return request(app.getHttpServer())
         .post(uri)
-        .send({ email, password })
+        .send({ email, password, remembers: true })
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
           expect(body).toHaveProperty('accessToken')
@@ -255,6 +267,7 @@ describe('AuthController (e2e)', () => {
           firstname,
           lastname,
           password,
+          remembers: true,
         })
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
@@ -316,7 +329,7 @@ describe('AuthController (e2e)', () => {
       return request(app.getHttpServer())
         .post(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
-        .send({ refreshToken: tokens.refreshToken })
+        .send({ refreshToken: tokens.refreshToken, remembers: true })
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
           expect(body).toHaveProperty('accessToken')

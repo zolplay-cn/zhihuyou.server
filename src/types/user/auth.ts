@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -17,6 +18,11 @@ export class LoginDto {
   @IsNotEmpty()
   @IsString()
   password!: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  remembers?: boolean
 }
 
 export class RegisterDto {
@@ -44,6 +50,11 @@ export class RegisterDto {
   @IsOptional()
   @IsString()
   lastname?: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  remembers?: boolean
 }
 
 export class RefreshTokenDto {
@@ -51,6 +62,11 @@ export class RefreshTokenDto {
   @IsNotEmpty()
   @IsString()
   refreshToken!: string
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  remembers?: boolean
 }
 
 export const authTokenKey = 'userId'
