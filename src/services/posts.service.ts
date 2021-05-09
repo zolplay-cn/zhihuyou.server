@@ -29,7 +29,7 @@ export class PostsService {
     })
   }
 
-  /*
+  /**
    * Updates a post.
    *
    * @param data
@@ -110,7 +110,7 @@ export class PostsService {
   /**
    * Gets all posts.
    */
-  async getAll(): Promise<Array<Post>> {
+  async getAll(): Promise<Post[]> {
     return await this.db.post.findMany({
       where: {
         published: true,

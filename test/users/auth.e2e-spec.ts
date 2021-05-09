@@ -37,6 +37,7 @@ describe('AuthController (e2e)', () => {
             id: user.id,
             email: user.email,
           })
+          expect(body.password).toBeUndefined()
         })
     })
   })
