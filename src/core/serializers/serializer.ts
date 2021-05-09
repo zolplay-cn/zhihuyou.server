@@ -1,4 +1,4 @@
-import { ClassConstructor, plainToClass } from 'class-transformer'
+import { plainToClass } from 'class-transformer'
 
 export abstract class Serializer<T extends Record<string, unknown>, Model> {
   /**
