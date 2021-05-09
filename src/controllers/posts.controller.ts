@@ -33,7 +33,7 @@ export class PostsController {
   @Post()
   @UseGuards(AuthGuard)
   async create(@Body() data: CreatePostDto, @Req() { user }: Request) {
-    return this.service.create(data, user.id)
+    return this.service.create(data, user!.id)
   }
 
   @Put(':id')
@@ -43,13 +43,13 @@ export class PostsController {
     @Body() data: UpdatePostDto,
     @Req() { user }: Request
   ) {
-    return this.service.update(data, id, user.id)
+    return this.service.update(data, id, user!.id)
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard)
   async delete(@Param('id') id: string, @Req() { user }: Request) {
-    await this.service.delete(id, user.id)
+    await this.service.delete(id, user!.id)
 
     return { id }
   }
