@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import * as dotenv from 'dotenv'
 import { Config, ConfigKey } from '~/config/config.interface'
 
