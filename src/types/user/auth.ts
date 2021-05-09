@@ -19,7 +19,7 @@ export class LoginDto {
   @IsString()
   password!: string
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
   remembers?: boolean
@@ -51,7 +51,7 @@ export class RegisterDto {
   @IsString()
   lastname?: string
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
   remembers?: boolean
@@ -63,7 +63,7 @@ export class RefreshTokenDto {
   @IsString()
   refreshToken!: string
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
   remembers?: boolean
