@@ -3,15 +3,17 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { AuthService } from '~/services/users/auth.service'
 import { ConfigService } from '@nestjs/config'
-import { User } from '@prisma/client'
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 import { AuthTokenPayloadForSigning } from '~/types/user/auth'
+import { UserSerializer } from '~/core/serializers/user.serializer'
+import { User } from '~/models/user.model'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(
     private readonly authService: AuthService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly serializer: UserSerializer
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -26,6 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException()
     }
 
-    return user
+    return this.serializer.morph(user)
   }
 }
