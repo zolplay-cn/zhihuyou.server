@@ -37,7 +37,7 @@ export class UpdatePostDto {
 
 export class DeletePostResponse {
   @ApiProperty({
-    description: "the deleted post's id",
+    description: 'The ID of the deleted post.',
   })
   id!: string
 }

@@ -25,7 +25,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import { Post as ModelPost } from '~/models/post.model'
+import { Post as PostModel } from '~/models/post.model'
 
 @ApiTags('posts')
 @Controller('posts')
@@ -34,14 +34,14 @@ export class PostsController {
   private readonly service!: PostsService
 
   @Get()
-  @ApiOkResponse({ type: ModelPost, isArray: true })
+  @ApiOkResponse({ type: PostModel, isArray: true })
   async getAll() {
     return this.service.getAll()
   }
 
   @Get(':id')
-  @ApiOkResponse({ type: ModelPost })
-  @ApiNotFoundResponse({ description: 'when the post is not found' })
+  @ApiOkResponse({ type: PostModel })
+  @ApiNotFoundResponse({ description: 'When the post is not found.' })
   async findById(@Param('id') id: string) {
     return this.service.findById(id)
   }
@@ -51,8 +51,8 @@ export class PostsController {
   @ApiBearerAuth()
   @ApiBody({ type: CreatePostDto })
   @ApiOperation({ summary: 'Create a post' })
-  @ApiCreatedResponse({ type: ModelPost })
-  @ApiUnauthorizedResponse({ description: 'when user not logged in' })
+  @ApiCreatedResponse({ type: PostModel })
+  @ApiUnauthorizedResponse({ description: 'Requires authentication.' })
   async create(@Body() data: CreatePostDto, @Req() { user }: Request) {
     return this.service.create(data, user!.id)
   }
@@ -61,13 +61,13 @@ export class PostsController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiBody({ type: UpdatePostDto, required: false })
-  @ApiOkResponse({ type: ModelPost })
+  @ApiOkResponse({ type: PostModel })
   @ApiUnauthorizedResponse({
     description:
-      "when the user not logged in or don't have permission to update",
+      "When the user is not logged in or they don't have the permission to update.",
   })
-  @ApiNotFoundResponse({ description: 'when the post is not found' })
-  @ApiOperation({ summary: 'Update a Post by id' })
+  @ApiNotFoundResponse({ description: 'When the post is not found.' })
+  @ApiOperation({ summary: 'Update a post' })
   async update(
     @Param('id') id: string,
     @Body() data: UpdatePostDto,
@@ -80,12 +80,12 @@ export class PostsController {
   @UseGuards(AuthGuard)
   @ApiBearerAuth()
   @ApiOkResponse({ type: DeletePostResponse })
-  @ApiNotFoundResponse({ description: 'when the post cannot be found' })
+  @ApiNotFoundResponse({ description: 'When the post is not found.' })
   @ApiBadRequestResponse({
-    description: "when ths user don't have permission to update",
+    description: "When ths user doesn't have the permission to update.",
   })
-  @ApiUnauthorizedResponse({ description: 'when the user not logged in' })
-  @ApiOperation({ summary: 'Delete a post by id' })
+  @ApiUnauthorizedResponse({ description: 'When the user is not logged in.' })
+  @ApiOperation({ summary: 'Delete a post' })
   async delete(@Param('id') id: string, @Req() { user }: Request) {
     await this.service.delete(id, user!.id)
 
