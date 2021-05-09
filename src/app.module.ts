@@ -1,4 +1,9 @@
-import { Module } from '@nestjs/common'
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common'
 import { AppController } from './controllers/app.controller'
 import { AppService } from './services/app.service'
 import { ConfigModule } from '@nestjs/config'
@@ -7,6 +12,7 @@ import { UserModule } from '~/modules/user.module'
 import { CoreModule } from '~/modules/core.module'
 import { AuthModule } from '~/modules/users/auth.module'
 import { PostsModule } from '~/modules/posts.module'
+import { AuthMiddleware } from '~/middleware/auth.middleware'
 
 @Module({
   imports: [
@@ -23,4 +29,12 @@ import { PostsModule } from '~/modules/posts.module'
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Global middleware
+    consumer.apply(AuthMiddleware).forRoutes({
+      path: '*',
+      method: RequestMethod.ALL,
+    })
+  }
+}

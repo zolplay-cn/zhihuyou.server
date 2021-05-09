@@ -19,6 +19,8 @@ import {
   RegisterDto,
 } from '~/types/user/auth'
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
+import { UserSerializer } from '~/core/serializers/user.serializer'
+import { User } from '~/models/user.model'
 
 @Injectable()
 export class AuthService {
@@ -33,6 +35,9 @@ export class AuthService {
 
   @Inject()
   private readonly config!: ConfigService
+
+  @Inject()
+  private readonly userSerializer!: UserSerializer
 
   /**
    * Logs a user in.
@@ -133,6 +138,21 @@ export class AuthService {
     } catch (e) {
       throw new UnauthorizedException()
     }
+  }
+
+  /**
+   * Verifies a bearer token.
+   *
+   * @param bearerToken
+   */
+  async verifyAndGetUser(bearerToken: string): Promise<User | undefined> {
+    const payload = this.jwt.verify(bearerToken) as AuthTokenPayloadForSigning
+    if (payload[authTokenKey]) {
+      const user = await this.validateUser(payload[authTokenKey])
+      return user ? this.userSerializer.morph(user) : undefined
+    }
+
+    return undefined
   }
 
   /**
