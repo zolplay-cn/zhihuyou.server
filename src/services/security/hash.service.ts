@@ -11,14 +11,6 @@ export class HashService {
 
   private readonly config: SecurityConfig
 
-  get bcryptSaltRounds(): string | number {
-    const { bcryptSaltOrRound } = this.config
-
-    return Number.isInteger(Number(bcryptSaltOrRound))
-      ? Number(bcryptSaltOrRound)
-      : bcryptSaltOrRound
-  }
-
   validate = (original: string, hashed: string) => compare(original, hashed)
-  make = (value: string) => hash(value, this.bcryptSaltRounds)
+  make = (value: string) => hash(value, this.config.bcryptSaltOrRound)
 }

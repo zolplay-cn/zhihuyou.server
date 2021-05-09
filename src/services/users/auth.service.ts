@@ -44,11 +44,16 @@ export class AuthService {
    *
    * @param email
    * @param password
+   * @param remembers
    *
    * @throws NotFoundException
    * @throws BadRequestException
    */
-  async login({ email, password }: LoginDto): Promise<AuthToken> {
+  async login({
+    email,
+    password,
+    remembers = false,
+  }: LoginDto): Promise<AuthToken> {
     const user = await this.db.user.findUnique({
       where: {
         email,
@@ -63,7 +68,7 @@ export class AuthService {
       throw new BadRequestException('Invalid credentials')
     }
 
-    return this.generateToken({ [authTokenKey]: user.id })
+    return this.generateToken({ [authTokenKey]: user.id }, remembers)
   }
 
   /**
@@ -71,6 +76,7 @@ export class AuthService {
    *
    * @param email
    * @param password
+   * @param remembers
    * @param rest
    *
    * @throws ConflictException
@@ -78,6 +84,7 @@ export class AuthService {
   async register({
     email,
     password,
+    remembers = false,
     ...rest
   }: RegisterDto): Promise<AuthToken> {
     const hashedPassword = await this.hash.make(password)
@@ -92,8 +99,9 @@ export class AuthService {
         },
       })
 
-      return this.generateToken({ [authTokenKey]: user.id })
+      return this.generateToken({ [authTokenKey]: user.id }, remembers)
     } catch (e) {
+      /* istanbul ignore else */
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === 'P2002'
@@ -109,13 +117,19 @@ export class AuthService {
    * Generates auth jwt token for user.
    *
    * @param payload
+   * @param remembers
    */
-  generateToken(payload: AuthTokenPayloadForSigning): AuthToken {
+  generateToken(
+    payload: AuthTokenPayloadForSigning,
+    remembers = false
+  ): AuthToken {
     const accessToken = this.jwt.sign(payload)
 
     const securityConfig = this.config.get<SecurityConfig>(ConfigKey.Security)
     const refreshToken = this.jwt.sign(payload, {
-      expiresIn: securityConfig?.refreshIn,
+      expiresIn: remembers
+        ? securityConfig?.refreshInForRemembering
+        : securityConfig?.refreshIn,
     })
 
     return {
@@ -128,13 +142,15 @@ export class AuthService {
    * Refreshes a user's access token.
    *
    * @param token
+   * @param remembers
+   *
    * @throws UnauthorizedException
    */
-  refreshToken(token: string): AuthToken {
+  refreshToken(token: string, remembers = false): AuthToken {
     try {
       const { userId } = this.jwt.verify<AuthTokenPayloadForSigning>(token)
 
-      return this.generateToken({ userId })
+      return this.generateToken({ userId }, remembers)
     } catch (e) {
       throw new UnauthorizedException()
     }
@@ -147,12 +163,9 @@ export class AuthService {
    */
   async verifyAndGetUser(bearerToken: string): Promise<User | undefined> {
     const payload = this.jwt.verify(bearerToken) as AuthTokenPayloadForSigning
-    if (payload[authTokenKey]) {
-      const user = await this.validateUser(payload[authTokenKey])
-      return user ? this.userSerializer.morph(user) : undefined
-    }
+    const user = await this.validateUser(payload[authTokenKey])
 
-    return undefined
+    return user ? this.userSerializer.morph(user) : undefined
   }
 
   /**

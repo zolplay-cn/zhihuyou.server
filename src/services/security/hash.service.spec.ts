@@ -6,7 +6,8 @@ import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 describe('HashService', () => {
   const securityConfig: SecurityConfig = {
     expiresIn: '2m',
-    refreshIn: '30d',
+    refreshIn: '1d',
+    refreshInForRemembering: '360d',
     bcryptSaltOrRound: 10,
     jwtSecret: 'secret',
   }
@@ -33,7 +34,9 @@ describe('HashService', () => {
     service = app.get(HashService)
   })
 
-  test('should have correct bcrypt salt rounds.', function () {
-    expect(service.bcryptSaltRounds).toBe(securityConfig.bcryptSaltOrRound)
+  test('should validate correctly', async function () {
+    const secret = 'secret'
+    const hashed = await service.make(secret)
+    expect(service.validate(secret, hashed)).toBeTruthy()
   })
 })
