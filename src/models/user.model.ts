@@ -1,8 +1,9 @@
-import { Role, User as BaseUser } from '@prisma/client'
+import { Role, User as UserObject } from '@prisma/client'
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude } from 'class-transformer'
+import { Model } from '~/core/model/base.model'
 
-export class User implements BaseUser {
+export class User extends Model<UserObject> implements UserObject {
   @ApiProperty()
   id!: string
 

@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common'
 import { DatabaseService } from '~/services/database.service'
 import { CreatePostDto, UpdatePostDto } from '~/types/post'
-import { Post } from '@prisma/client'
+import modelFactory from '~/core/model/model.factory'
+import { Post } from '~/models/post.model'
 
 @Injectable()
 export class PostsService {
@@ -20,13 +21,15 @@ export class PostsService {
    * @param data
    * @param authorId
    */
-  async create(data: CreatePostDto, authorId: string): Promise<Post> {
-    return await this.db.post.create({
-      data: {
-        ...data,
-        authorId,
-      },
-    })
+  async create(data: CreatePostDto, authorId: string) {
+    return new Post(
+      await this.db.post.create({
+        data: {
+          ...data,
+          authorId,
+        },
+      })
+    )
   }
 
   /**
@@ -40,8 +43,8 @@ export class PostsService {
     data: UpdatePostDto,
     id: string,
     authorId: string
-  ): Promise<Post> {
-    let post = await this.db.post.findFirst({ where: { id } })
+  ): Promise<Post | undefined> {
+    const post = await this.db.post.findFirst({ where: { id } })
 
     if (!post) {
       throw new NotFoundException(`Post cannot be found for id: ${id}.`)
@@ -53,12 +56,12 @@ export class PostsService {
       )
     }
 
-    post = await this.db.post.update({
-      where: { id },
-      data: data,
-    })
-
-    return post
+    return new Post(
+      await this.db.post.update({
+        where: { id },
+        data: data,
+      })
+    )
   }
 
   /**
@@ -67,7 +70,7 @@ export class PostsService {
    * @param id
    * @param authorId
    */
-  async delete(id: string, authorId: string): Promise<void> {
+  async delete(id: string, authorId: string) {
     const post = await this.db.post.findUnique({ where: { id } })
 
     if (!post) {
@@ -92,7 +95,7 @@ export class PostsService {
    *
    * @param id post_id
    */
-  async findById(id: string): Promise<Post> {
+  async findById(id: string) {
     const post = await this.db.post.findFirst({
       where: {
         id,
@@ -104,17 +107,20 @@ export class PostsService {
       throw new NotFoundException(`Post cannot be found for id: ${id}.`)
     }
 
-    return post
+    return new Post(post)
   }
 
   /**
    * Gets all posts.
    */
-  async getAll(): Promise<Post[]> {
-    return await this.db.post.findMany({
-      where: {
-        published: true,
-      },
-    })
+  async getAll() {
+    return modelFactory.makeAll(
+      Post,
+      await this.db.post.findMany({
+        where: {
+          published: true,
+        },
+      })
+    )
   }
 }

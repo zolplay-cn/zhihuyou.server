@@ -1,11 +1,13 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
   Inject,
   Post,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
 import {
   AuthTokenInstance,
@@ -32,6 +34,7 @@ import { Request } from '~/types/http'
 
 @ApiTags('auth')
 @Controller('auth')
+@UseInterceptors(ClassSerializerInterceptor)
 export class AuthController {
   @Inject()
   private readonly service!: AuthService
