@@ -16,6 +16,7 @@ export interface AppConfig {
 
 export interface CorsConfig {
   enabled: boolean
+  origin: string | string[]
 }
 
 export interface SecurityConfig {

@@ -10,6 +10,7 @@ const config: Config = {
   [ConfigKey.App]: { port: parseInt(process.env.APP_PORT || '3000', 10) },
   [ConfigKey.CORS]: {
     enabled: true,
+    origin: process.env.CORS_ORIGIN || '*',
   },
   [ConfigKey.Security]: {
     expiresIn: '2m',

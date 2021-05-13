@@ -16,7 +16,10 @@ async function main() {
   const corsConfig = configService.get<CorsConfig>(ConfigKey.CORS)
 
   if (corsConfig?.enabled) {
-    app.enableCors()
+    app.enableCors({
+      credentials: true,
+      origin: corsConfig?.origin,
+    })
     logger.debug('CORS enabled for App')
   }
 
