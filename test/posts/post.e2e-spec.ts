@@ -3,6 +3,8 @@ import { DatabaseService } from '~/services/database.service'
 import { createUser, resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import * as faker from 'faker'
 import * as request from 'supertest'
+import modelFactory from '~/core/model/model.factory'
+import { Post } from '~/models/post.model'
 
 const getFakerPost = () => {
   const title = faker.lorem.word(10)
@@ -51,22 +53,25 @@ describe('PostController (e2e)', () => {
     })
 
     it('should return 200 and posts details', async () => {
-      const posts: Array<any> = []
+      const posts: Post[] = []
 
       for (const _ of Array(10).fill('')) {
         const post = getFakerPost()
         post.published = true
-        const { createdAt, updatedAt, ...rest } = await db.post.create({
-          data: post,
-        })
-        posts.push(rest)
+        posts.push(
+          new Post(
+            await db.post.create({
+              data: post,
+            })
+          )
+        )
       }
 
       return http()
         .get(uri)
         .expect(HttpStatus.OK)
         .then(({ body }) => {
-          expect(body).toMatchObject(posts)
+          expect(body).toMatchObject(posts.map((p) => p.toJson()))
         })
     })
   })
@@ -89,16 +94,16 @@ describe('PostController (e2e)', () => {
       const form = getFakerPost()
       form.published = true
       const post = await db.post.create({ data: form })
-      const { title, content, published, id } = post
+      const { title, content, id } = post
 
       return request(app.getHttpServer())
         .get(uri + `/${post.id}`)
         .expect(HttpStatus.OK)
         .then(({ body }) => {
+          expect(body.published).toBeUndefined()
           expect(body).toMatchObject({
             title,
             content,
-            published,
             id,
           })
         })
@@ -119,7 +124,7 @@ describe('PostController (e2e)', () => {
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
           expect(body).toMatchObject({
-            ...form,
+            ...modelFactory.make(Post, form),
             authorId: user.id,
           })
         })
@@ -171,7 +176,7 @@ describe('PostController (e2e)', () => {
         .expect(HttpStatus.OK)
         .then(({ body }) => {
           expect(body).toMatchObject({
-            ...form,
+            ...modelFactory.make(Post, form),
             authorId: user.id,
           })
         })
@@ -218,16 +223,17 @@ describe('PostController (e2e)', () => {
         })
     })
 
-    it('should return post validation errors', async () => {
+    it('should return posts details', async () => {
       const { user, tokens } = await createUser(app)
       const form = getFakerPost()
-      const post = await db.post.create({
-        data: {
-          ...form,
-          authorId: user.id,
-        },
-      })
-      const { createdAt, updatedAt, ...matchPost } = post
+      const post = new Post(
+        await db.post.create({
+          data: {
+            ...form,
+            authorId: user.id,
+          },
+        })
+      )
 
       return http()
         .put(uri + post.id)
@@ -235,7 +241,7 @@ describe('PostController (e2e)', () => {
         .send({})
         .expect(HttpStatus.OK)
         .then(({ body }) => {
-          expect(body).toMatchObject(matchPost)
+          expect(body).toMatchObject(post.toJson())
         })
     })
   })

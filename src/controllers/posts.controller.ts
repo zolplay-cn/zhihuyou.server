@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,6 +10,7 @@ import {
   Put,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common'
 import { PostsService } from '~/services/posts.service'
 import { AuthGuard } from '~/guards/auth.guard'
@@ -28,6 +30,7 @@ import {
 import { Post as PostModel } from '~/models/post.model'
 
 @ApiTags('posts')
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('posts')
 export class PostsController {
   @Inject()

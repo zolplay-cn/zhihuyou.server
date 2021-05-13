@@ -19,8 +19,8 @@ import {
   RegisterDto,
 } from '~/types/user/auth'
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
-import { UserSerializer } from '~/core/serializers/user.serializer'
 import { User } from '~/models/user.model'
+import { isNil } from 'lodash'
 
 @Injectable()
 export class AuthService {
@@ -35,9 +35,6 @@ export class AuthService {
 
   @Inject()
   private readonly config!: ConfigService
-
-  @Inject()
-  private readonly userSerializer!: UserSerializer
 
   /**
    * Logs a user in.
@@ -163,9 +160,7 @@ export class AuthService {
    */
   async verifyAndGetUser(bearerToken: string): Promise<User | undefined> {
     const payload = this.jwt.verify(bearerToken) as AuthTokenPayloadForSigning
-    const user = await this.validateUser(payload[authTokenKey])
-
-    return user ? this.userSerializer.morph(user) : undefined
+    return this.validateUser(payload[authTokenKey])
   }
 
   /**
@@ -173,7 +168,9 @@ export class AuthService {
    *
    * @param userId
    */
-  validateUser(userId: string) {
-    return this.db.user.findUnique({ where: { id: userId } })
+  private async validateUser(userId: string): Promise<User | undefined> {
+    const data = await this.db.user.findUnique({ where: { id: userId } })
+
+    return isNil(data) ? undefined : new User(data)
   }
 }

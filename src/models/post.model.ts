@@ -1,8 +1,9 @@
-import { Post as BasePost } from '@prisma/client'
+import { Post as PostObject } from '@prisma/client'
 import { ApiProperty } from '@nestjs/swagger'
-import { Exclude } from 'class-transformer'
+import { Exclude, Transform } from 'class-transformer'
+import { Model } from '~/core/model/base.model'
 
-export class Post implements BasePost {
+export class Post extends Model<PostObject> implements PostObject {
   @ApiProperty()
   id!: string
 
@@ -16,9 +17,11 @@ export class Post implements BasePost {
   content!: string | null
 
   @ApiProperty()
+  @Transform(({ value }) => value.toString())
   createdAt!: Date
 
   @ApiProperty()
+  @Transform(({ value }) => value.toString())
   updatedAt!: Date
 
   @ApiProperty()
