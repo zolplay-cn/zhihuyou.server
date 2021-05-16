@@ -14,7 +14,7 @@ const getFakerPost = () => {
   return { title, content, published }
 }
 
-describe('PostController (e2e)', () => {
+describe('PostsController (e2e)', () => {
   let app: INestApplication
   let db: DatabaseService
 

@@ -12,7 +12,7 @@ const config: Config = {
     enabled: true,
   },
   [ConfigKey.Security]: {
-    expiresIn: '2m',
+    expiresIn: '120m',
     refreshIn: '1d',
     refreshInForRemembering: '360d',
     bcryptSaltOrRound: 10,
