@@ -9,6 +9,7 @@ import {
   Put,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common'
 import {
   ApiBadRequestResponse,
@@ -38,8 +39,10 @@ import { User } from '~/models/user.model'
 import { Serializer } from '~/core/decorators/serializer.decorator'
 import { UserService } from '~/services/users/user.service'
 import { Request } from '~/types/http'
+import { AuthGuard } from '~/guards/auth.guard'
 
 @ApiTags('user')
+@UseGuards(AuthGuard)
 @Controller('users')
 export class UsersController {
   @Inject()

@@ -1,17 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  MinLength,
 } from 'class-validator'
 import { Role } from '@prisma/client'
 
 export class CreateUserDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email!: string
 
   @ApiProperty()
@@ -51,25 +53,22 @@ export class ForceUpdatePasswordDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
+  @MinLength(6)
   password!: string
 }
 
-export class UpdatePasswordDto {
+export class UpdatePasswordDto extends ForceUpdatePasswordDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  password!: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  oldPassword!: string
+  @MinLength(6)
+  currentPassword!: string
 }
 
 export class UpdateEmailDto {
   @ApiProperty()
   @IsNotEmpty()
-  @IsString()
+  @IsEmail()
   email!: string
 }
 
@@ -83,12 +82,13 @@ export class UpdateRoleDto {
 export class ForceUpdateUserDto {
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsEmail()
   email?: string
 
   @ApiProperty()
   @IsOptional()
   @IsString()
+  @MinLength(6)
   password?: string
 
   @ApiProperty()
@@ -110,7 +110,7 @@ export class ForceUpdateUserDto {
 export class SearchUserDto {
   @ApiProperty()
   @IsOptional()
-  @IsString()
+  @IsEmail()
   email?: string
 
   @ApiProperty()

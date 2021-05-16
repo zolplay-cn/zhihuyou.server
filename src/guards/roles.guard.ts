@@ -25,12 +25,10 @@ export class RolesGuard implements CanActivate {
 
     const { user } = context.switchToHttp().getRequest<Request>()
 
-    if (
-      !isNil(user) &&
-      !roles.some((role) => user?.role.includes(role)) &&
-      !this.isAdmin(user!)
-    ) {
-      throw new ForbiddenException("You don't have the permission")
+    this.checkUserExists(user)
+
+    if (!this.isAdmin(user!)) {
+      this.checkHaveRole(roles as [], user!)
     }
 
     return true
@@ -38,5 +36,25 @@ export class RolesGuard implements CanActivate {
 
   private isAdmin(user: User) {
     return user.role === Role.ADMIN
+  }
+
+  private checkUserExists(user?: User): boolean {
+    if (isNil(user)) {
+      this.throwForbidden()
+    }
+
+    return true
+  }
+
+  private checkHaveRole(roles: [], user: User): boolean {
+    if (!roles.some((role) => user!.role.includes(role))) {
+      this.throwForbidden()
+    }
+
+    return true
+  }
+
+  private throwForbidden() {
+    throw new ForbiddenException("You don't have the permission")
   }
 }

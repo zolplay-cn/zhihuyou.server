@@ -36,7 +36,7 @@ export class UserService {
   async updatePassword(data: UpdatePasswordDto, id: string) {
     const user = await this.getUser(id)
 
-    if (!(await this.hash.validate(data.oldPassword, user.password))) {
+    if (!(await this.hash.validate(data.currentPassword, user.password))) {
       throw new BadRequestException('password is incorrect')
     }
 
@@ -48,6 +48,11 @@ export class UserService {
     })
   }
 
+  /**
+   * Gets a user
+   *
+   * @param id
+   */
   async getUser(id: string) {
     const user = await this.db.user.findUnique({ where: { id } })
 

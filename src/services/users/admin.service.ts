@@ -29,7 +29,7 @@ export class AdminUserService {
   private readonly hash!: HashService
 
   /**
-   * Create a user.
+   * Creates a user.
    *
    * @param password
    * @param email
@@ -40,12 +40,12 @@ export class AdminUserService {
     email,
     ...data
   }: CreateUserDto): Promise<User> {
-    const hashPassword = await this.hash.make(password)
+    const hashedPassword = await this.hash.make(password)
 
     try {
       return await this.db.user.create({
         data: {
-          password: hashPassword,
+          password: hashedPassword,
           email,
           ...data,
         },
@@ -171,7 +171,7 @@ export class AdminUserService {
   }
 
   /**
-   * Gets all users orderBy desc createdAt
+   * Gets all users (latest first)
    */
   async getAllUser(): Promise<User[]> {
     return await this.db.user.findMany({

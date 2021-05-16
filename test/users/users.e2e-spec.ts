@@ -6,7 +6,6 @@ import {
   http,
   resetDatabase,
   resetsDatabaseAfterAll,
-  resetsDatabaseAfterEach,
   setupNestApp,
 } from 'test/helpers'
 import * as faker from 'faker'
@@ -37,8 +36,6 @@ describe('UsersController (e2e)', () => {
   })
 
   resetsDatabaseAfterAll(() => app)
-
-  // resetsDatabaseAfterEach()
 
   describe('@POST /users', () => {
     const uri = '/users'
@@ -108,7 +105,7 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
           expect(body.message).toMatchObject([
-            'email must be a string',
+            'email must be an email',
             'email should not be empty',
             'role must be a valid enum value',
           ])
@@ -239,6 +236,7 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
           expect(body.message).toMatchObject([
+            'password must be longer than or equal to 6 characters',
             'password must be a string',
             'password should not be empty',
           ])
@@ -348,6 +346,7 @@ describe('UsersController (e2e)', () => {
     })
 
     it('should return 404 if administrator want to delete is not found', async () => {
+      // await resetDatabase()
       const { tokens } = await createAdminUser(app)
       const id = faker.datatype.uuid()
 
@@ -399,7 +398,8 @@ describe('UsersController (e2e)', () => {
     const uri = '/users'
 
     it('should return 200 with users array', async () => {
-      await resetDatabase()
+      // await resetDatabase()
+      await db.user.deleteMany()
       const { user, tokens } = await createAdminUser(app)
       const users = []
 
@@ -605,7 +605,7 @@ describe('UsersController (e2e)', () => {
         .put(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
         .send({
-          oldPassword: password,
+          currentPassword: password,
           password: newPassword,
         })
         .expect(HttpStatus.OK)
@@ -629,7 +629,7 @@ describe('UsersController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .send({
           password: newPassword,
-          oldPassword: faker.internet.password(),
+          currentPassword: faker.internet.password(),
         })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
@@ -644,9 +644,28 @@ describe('UsersController (e2e)', () => {
         .put(uri)
         .send({
           password: faker.internet.password(),
-          oldPassword: password,
+          currentPassword: password,
         })
         .expect(HttpStatus.UNAUTHORIZED)
+    })
+
+    it('should return 400 if user submit current password length less than 6 characters', async () => {
+      const { tokens } = await createUser(app)
+      const newPassword = faker.internet.password(5)
+
+      return http(app)
+        .put(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .send({
+          password: newPassword,
+          currentPassword: faker.internet.password(),
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .then(({ body }) => {
+          expect(body.message).toMatchObject([
+            'password must be longer than or equal to 6 characters',
+          ])
+        })
     })
   })
 })
