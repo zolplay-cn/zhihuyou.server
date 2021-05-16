@@ -4,7 +4,6 @@ import {
   createAdminUser,
   createUser,
   http,
-  resetDatabase,
   resetsDatabaseAfterAll,
   setupNestApp,
 } from 'test/helpers'
@@ -346,7 +345,6 @@ describe('UsersController (e2e)', () => {
     })
 
     it('should return 404 if administrator want to delete is not found', async () => {
-      // await resetDatabase()
       const { tokens } = await createAdminUser(app)
       const id = faker.datatype.uuid()
 
@@ -398,7 +396,6 @@ describe('UsersController (e2e)', () => {
     const uri = '/users'
 
     it('should return 200 with users array', async () => {
-      // await resetDatabase()
       await db.user.deleteMany()
       const { user, tokens } = await createAdminUser(app)
       const users = []
@@ -595,7 +592,7 @@ describe('UsersController (e2e)', () => {
   })
 
   describe('@PUT /users/me/password', () => {
-    const uri = '/users/me/password'
+    const uri = '/users/my/password'
 
     it('should return 200 with true', async () => {
       const { user, tokens, password } = await createUser(app)

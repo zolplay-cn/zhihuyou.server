@@ -146,7 +146,7 @@ export class UsersController {
     return await this.userService.update(data, user!.id)
   }
 
-  @Put('me/password')
+  @Put('my/password')
   @Roles(Role.USER)
   @ApiBody({ type: UpdatePasswordDto })
   @ApiOperation({ summary: 'Updates own password' })
