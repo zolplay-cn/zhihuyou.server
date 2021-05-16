@@ -1,20 +1,12 @@
 import {
   BadRequestException,
-  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
-import {
-  CreateUserDto,
-  UpdatePasswordDto,
-  UpdateUserDto,
-} from '~/types/user/user'
-import { PrismaErrorCode } from '~/enums/PrismaErrorCode'
-import { User } from '~/models/user.model'
+import { UpdatePasswordDto, UpdateUserDto } from '~/types/user/user'
 
 @Injectable()
 export class UserService {
