@@ -1,6 +1,6 @@
 import { Role, User as UserObject } from '@prisma/client'
 import { ApiProperty } from '@nestjs/swagger'
-import { Exclude } from 'class-transformer'
+import { Exclude, Expose, Transform } from 'class-transformer'
 import { Model } from '~/core/model/base.model'
 
 export class User extends Model<UserObject> implements UserObject {
@@ -14,9 +14,11 @@ export class User extends Model<UserObject> implements UserObject {
   password!: string
 
   @ApiProperty()
+  @Transform(({ value }) => value.toString())
   createdAt!: Date
 
   @ApiProperty()
+  @Transform(({ value }) => value.toString())
   updatedAt!: Date
 
   @ApiProperty()
@@ -27,4 +29,10 @@ export class User extends Model<UserObject> implements UserObject {
 
   @ApiProperty()
   role!: Role
+
+  @ApiProperty()
+  @Expose({ name: 'name' })
+  get name() {
+    return this.firstname + ' ' + this.lastname
+  }
 }

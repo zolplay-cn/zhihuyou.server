@@ -7,6 +7,8 @@ import { HashService } from '~/services/security/hash.service'
 import { AuthService } from '~/services/users/auth.service'
 import { authTokenKey } from '~/types/user/auth'
 import { DatabaseService } from '~/services/database.service'
+import * as request from 'supertest'
+import { Role } from '@prisma/client'
 
 /**
  * Bootstraps and sets up the nest app.
@@ -53,7 +55,27 @@ export async function createUser(app: INestApplication) {
   })
   const tokens = app.get(AuthService).generateToken({ [authTokenKey]: user.id })
 
-  return { user, tokens }
+  return { user, tokens, password }
+}
+
+export async function createAdminUser(app: INestApplication) {
+  const db = app.get(DatabaseService)
+  const { user, tokens } = await createUser(app)
+
+  const updatedUser = await db.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      role: Role.ADMIN,
+      updatedAt: user.createdAt,
+    },
+  })
+
+  return {
+    user: updatedUser,
+    tokens,
+  }
 }
 
 /**
@@ -72,4 +94,8 @@ export const resetsDatabaseAfterAll = (getApp: () => INestApplication) => {
     await getApp().close()
     await resetDatabase()
   })
+}
+
+export const http = (app: INestApplication) => {
+  return request(app.getHttpServer())
 }

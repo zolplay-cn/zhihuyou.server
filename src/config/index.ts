@@ -13,7 +13,7 @@ const config: Config = {
     origin: process.env.CORS_ORIGIN || '*',
   },
   [ConfigKey.Security]: {
-    expiresIn: '2m',
+    expiresIn: '120m',
     refreshIn: '1d',
     refreshInForRemembering: '360d',
     bcryptSaltOrRound: 10,
