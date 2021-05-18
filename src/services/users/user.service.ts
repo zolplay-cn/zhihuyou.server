@@ -7,6 +7,7 @@ import {
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
 import { UpdatePasswordDto, UpdateUserDto } from '~/types/user/user'
+import { User } from '@prisma/client'
 
 @Injectable()
 export class UserService {
@@ -22,7 +23,7 @@ export class UserService {
    * @param data
    * @param id
    */
-  async update(data: UpdateUserDto, id: string) {
+  async update(data: UpdateUserDto, id: string): Promise<User> {
     return await this.db.user.update({ where: { id }, data })
   }
 
@@ -33,7 +34,7 @@ export class UserService {
    * @param data
    * @param id
    */
-  async updatePassword(data: UpdatePasswordDto, id: string) {
+  async updatePassword(data: UpdatePasswordDto, id: string): Promise<User> {
     const user = await this.getUser(id)
 
     if (!(await this.hash.validate(data.currentPassword, user.password))) {
@@ -53,7 +54,7 @@ export class UserService {
    *
    * @param id
    */
-  async getUser(id: string) {
+  async getUser(id: string): Promise<User> {
     const user = await this.db.user.findUnique({ where: { id } })
 
     if (!user) {
