@@ -48,10 +48,25 @@ model Post {
 }
 
 model Profile {
-  id     String    @id @default(cuid())
-  bio    String
-  user   User      @relation(fields: [userId], references: [id])
-  userId String    @unique
+  id       String   @id @default(cuid())
+  bio      String?
+  city     String?
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String   @unique
+  status   ProfileStatus?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProfileStatus {
+  id            String   @id @default(cuid())
+  content       String?  @db.VarChar(255)
+  emoji         String?
+  clearInterval Int?     @default(1) //TODO: 更新状态间隔，后续会关联到job or cache当中进行应用。主要模仿github的一个status clear的小功能需要。
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  profile       Profile  @relation(fields: [profileId], references: [id])
+  profileId     String   @unique
 }
 
 model Comment {

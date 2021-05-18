@@ -13,6 +13,7 @@ import { CoreModule } from '~/modules/core.module'
 import { AuthModule } from '~/modules/users/auth.module'
 import { PostsModule } from '~/modules/posts.module'
 import { AuthMiddleware } from '~/middleware/auth.middleware'
+import { ProfileModule } from '~/modules/users/profile.module'
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthMiddleware } from '~/middleware/auth.middleware'
     AuthModule,
     UserModule,
     PostsModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],
