@@ -7,6 +7,7 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common'
 import { ProfileService } from '~/services/users/profile.service'
 import {
@@ -20,13 +21,15 @@ import {
 import { AuthGuard } from '~/guards/auth.guard'
 import {
   SaveProfileResponse,
+  SaveProfileStatusDto,
   SaveProfileWithStatusDto,
 } from '~/types/user/profile'
 import { Request } from '~/types/http'
 import { ProfileStatusService } from '~/services/users/status.service'
 import modelFactory from '~/core/model/model.factory'
 import { ProfileClient } from '~/models/profile.model'
-import { ProfileStatusClient } from '~/models/profileStatus.model'
+import { ProfileStatusClient } from '~/models/profile-status.model'
+import { isNumber } from 'class-validator'
 
 @ApiTags('profile')
 @UseGuards(AuthGuard)
@@ -51,6 +54,8 @@ export class ProfileController {
     const response: SaveProfileResponse = {}
 
     if (data.status) {
+      this.validateStatusDto(data.status)
+
       response.status = modelFactory.make(
         ProfileStatusClient,
         await this.statusService.save(data.status, profile.id)
@@ -60,5 +65,17 @@ export class ProfileController {
     response.profile = modelFactory.make(ProfileClient, profile)
 
     return response
+  }
+
+  /**
+   * Validates profile status dto
+   *
+   * @param data
+   * @private
+   */
+  private validateStatusDto(data: SaveProfileStatusDto): void {
+    if (data.clearInterval && !isNumber(data.clearInterval)) {
+      throw new BadRequestException('clearInterval must be a number')
+    }
   }
 }

@@ -7,6 +7,7 @@ import {
   setupNestApp,
 } from 'test/helpers'
 import * as faker from 'faker'
+import { isNil } from '@nestjs/common/utils/shared.utils'
 
 describe('ProfileController (e2e)', () => {
   let app: INestApplication
@@ -42,11 +43,21 @@ describe('ProfileController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(profileWithStatus)
         .expect(HttpStatus.CREATED)
-        .then(({ body }) => {
+        .then(async ({ body }) => {
           expect(body).toMatchObject(profileWithStatus)
-          expect(body.profile).toMatchObject({ userId: user.id })
           expect(body.profile).not.toHaveProperty(['createdAt', 'updatedAt'])
-          expect(body.status).toMatchObject({ profileId: body.profile.id })
+
+          const profile = await db.profile.findUnique({
+            where: { userId: user.id },
+          })
+
+          expect({ ...profile }).toMatchObject(body.profile)
+
+          const status = await db.profileStatus.findUnique({
+            where: { profileId: profile!.id },
+          })
+
+          expect({ ...status }).toMatchObject(body.status)
         })
 
       const profile = {
@@ -61,7 +72,6 @@ describe('ProfileController (e2e)', () => {
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
           expect(body.profile).toMatchObject({
-            userId: user.id,
             ...profile,
           })
         })
@@ -79,7 +89,6 @@ describe('ProfileController (e2e)', () => {
         .expect(HttpStatus.CREATED)
         .then(({ body }) => {
           expect(body.status).toMatchObject({
-            profileId: body.profile.id,
             ...status,
           })
         })
@@ -100,9 +109,14 @@ describe('ProfileController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(profileWithStatus)
         .expect(HttpStatus.CREATED)
-        .then(({ body }) => {
+        .then(async ({ body }) => {
           expect(body).toMatchObject(profileWithStatus)
-          expect(body.profile).toMatchObject({ userId: user.id })
+
+          const profile = await db.profile.findUnique({
+            where: { userId: user.id },
+          })
+
+          expect({ ...profile }).toMatchObject(body.profile)
         })
     })
 
@@ -122,10 +136,19 @@ describe('ProfileController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(profileWithStatus)
         .expect(HttpStatus.CREATED)
-        .then(({ body }) => {
+        .then(async ({ body }) => {
           expect(body).toMatchObject(profileWithStatus)
-          expect(body.profile).toMatchObject({ userId: user.id })
-          expect(body.status).toMatchObject({ profileId: body.profile.id })
+          const profile = await db.profile.findUnique({
+            where: { userId: user.id },
+          })
+
+          expect(!isNil(profile)).toBeTruthy()
+
+          const status = await db.profileStatus.findUnique({
+            where: { profileId: profile!.id },
+          })
+
+          expect({ ...status }).toMatchObject(body.status)
         })
     })
 
@@ -139,9 +162,13 @@ describe('ProfileController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(profileWithStatus)
         .expect(HttpStatus.CREATED)
-        .then(({ body }) => {
+        .then(async ({ body }) => {
           expect(body).toMatchObject(profileWithStatus)
-          expect(body.profile).toMatchObject({ userId: user.id })
+          const profile = await db.profile.findUnique({
+            where: { userId: user.id },
+          })
+
+          expect(!isNil(profile)).toBeTruthy()
         })
     })
 
@@ -160,7 +187,7 @@ describe('ProfileController (e2e)', () => {
         .send({ status })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe('clearInterval must be a int')
+          expect(body.message).toBe('clearInterval must be a number')
         })
     })
 

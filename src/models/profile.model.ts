@@ -31,4 +31,7 @@ export class ProfileClient extends Profile {
 
   @Exclude()
   updatedAt!: Date
+
+  @Exclude()
+  userId!: string
 }

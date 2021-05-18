@@ -1,8 +1,7 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { DatabaseService } from '~/services/database.service'
 import { SaveProfileStatusDto } from '~/types/user/profile'
 import { ProfileStatus } from '@prisma/client'
-import { isInt } from 'class-validator'
 
 @Injectable()
 export class ProfileStatusService {
@@ -19,10 +18,6 @@ export class ProfileStatusService {
     data: SaveProfileStatusDto,
     profileId: string
   ): Promise<ProfileStatus> {
-    if (data.clearInterval && !isInt(data.clearInterval)) {
-      throw new BadRequestException('clearInterval must be a int')
-    }
-
     return await this.db.profileStatus.upsert({
       where: {
         profileId,

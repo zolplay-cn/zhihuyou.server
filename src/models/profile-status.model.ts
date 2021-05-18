@@ -36,4 +36,7 @@ export class ProfileStatusClient extends ProfileStatus {
 
   @Exclude()
   updatedAt!: Date
+
+  @Exclude()
+  profileId!: string
 }

@@ -1,13 +1,13 @@
 import {
-  IsInt,
   IsNotEmpty,
+  IsNumber,
   IsObject,
   IsOptional,
   IsString,
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { ProfileClient } from '~/models/profile.model'
-import { ProfileStatusClient } from '~/models/profileStatus.model'
+import { ProfileStatusClient } from '~/models/profile-status.model'
 
 export class SaveProfileDto {
   @ApiProperty()
@@ -41,7 +41,7 @@ export class SaveProfileStatusDto {
 
   @ApiProperty()
   @IsOptional()
-  @IsInt()
+  @IsNumber()
   clearInterval?: number
 }
 
@@ -59,8 +59,8 @@ export class SaveProfileWithStatusDto {
   profile?: SaveProfileDto
 
   @ApiProperty()
-  @IsOptional({ each: true })
-  @IsObject({ each: true })
+  @IsOptional()
+  @IsObject()
   status?: SaveProfileStatusDto
 }
 
