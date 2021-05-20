@@ -5,6 +5,11 @@ import { createUser, resetsDatabaseAfterAll, setupNestApp } from 'test/helpers'
 import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
 
+const getFakerName = () => ({
+  fullName: faker.name.findName(),
+  username: faker.internet.userName(),
+})
+
 describe('AuthController (e2e)', () => {
   let app: INestApplication
   let db: DatabaseService
@@ -107,8 +112,7 @@ describe('AuthController (e2e)', () => {
 
       await db.user.create({
         data: {
-          firstname: faker.name.firstName(),
-          lastname: faker.name.lastName(),
+          ...getFakerName(),
           email,
           password: await app.get(HashService).make(password),
         },
@@ -139,8 +143,7 @@ describe('AuthController (e2e)', () => {
 
       await db.user.create({
         data: {
-          firstname: faker.name.firstName(),
-          lastname: faker.name.lastName(),
+          ...getFakerName(),
           email,
           password: await app.get(HashService).make(password),
         },
@@ -203,28 +206,28 @@ describe('AuthController (e2e)', () => {
         })
     })
 
-    it('should return firstname or lastname validation errors', async () => {
+    it('should return fullName or username validation errors', async () => {
       await request(app.getHttpServer())
         .post(uri)
         .send({
           email: faker.internet.email(),
-          firstname: 123,
+          fullName: 123,
           password: 'password',
         })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toMatchObject(['firstname must be a string'])
+          expect(body.message).toMatchObject(['fullName must be a string'])
         })
       await request(app.getHttpServer())
         .post(uri)
         .send({
           email: faker.internet.email(),
-          lastname: 123,
+          username: 123,
           password: 'password',
         })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toMatchObject(['lastname must be a string'])
+          expect(body.message).toMatchObject(['username must be a string'])
         })
     })
 
@@ -235,8 +238,7 @@ describe('AuthController (e2e)', () => {
         data: {
           email,
           password: '',
-          firstname: faker.name.firstName(),
-          lastname: faker.name.lastName(),
+          ...getFakerName(),
         },
       })
 
@@ -244,8 +246,7 @@ describe('AuthController (e2e)', () => {
         .post(uri)
         .send({
           email,
-          firstname: faker.name.firstName(),
-          lastname: faker.name.lastName(),
+          ...getFakerName(),
           password: 'password',
         })
         .expect(HttpStatus.CONFLICT)
@@ -257,15 +258,14 @@ describe('AuthController (e2e)', () => {
     it('should return conflict if email already exists', async () => {
       const email = faker.internet.email()
       const password = 'password'
-      const firstname = faker.name.firstName()
-      const lastname = faker.name.lastName()
+      const { fullName, username } = getFakerName()
 
       await request(app.getHttpServer())
         .post(uri)
         .send({
           email,
-          firstname,
-          lastname,
+          fullName,
+          username,
           password,
           remembers: true,
         })
@@ -280,8 +280,8 @@ describe('AuthController (e2e)', () => {
       })
       expect(user).toMatchObject({
         email,
-        firstname,
-        lastname,
+        fullName,
+        username,
       })
       expect(
         await app.get(HashService).validate(password, user?.password || '')
