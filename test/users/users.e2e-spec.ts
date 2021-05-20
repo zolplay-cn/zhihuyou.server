@@ -11,16 +11,19 @@ import * as faker from 'faker'
 import { Role, User } from '@prisma/client'
 import { HashService } from '~/services/security/hash.service'
 import modelFactory from '~/core/model/model.factory'
-import { User as UserModel } from '~/models/user.model'
+import { User as UserModel, UserClient } from '~/models/user.model'
 import { map, shuffle } from 'lodash'
+
+const updateUserData = () => ({
+  fullName: faker.name.findName(),
+  username: faker.internet.userName(),
+})
 
 const getFakerUser = () => {
   const email = faker.internet.email()
   const password = faker.internet.password()
-  const firstname = faker.name.firstName()
-  const lastname = faker.name.lastName()
 
-  return { email, password, firstname, lastname }
+  return { email, password, ...updateUserData() }
 }
 
 describe('UsersController (e2e)', () => {
@@ -121,10 +124,7 @@ describe('UsersController (e2e)', () => {
 
       const userModel = await db.user.create({ data: user })
 
-      const updateData = {
-        firstname: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-      }
+      const updateData = updateUserData()
 
       return http(app)
         .put(uri + userModel.id)
@@ -142,10 +142,7 @@ describe('UsersController (e2e)', () => {
 
       await db.user.create({ data: user })
 
-      const updateData = {
-        firstname: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-      }
+      const updateData = updateUserData()
 
       const id = faker.datatype.uuid()
 
@@ -163,10 +160,7 @@ describe('UsersController (e2e)', () => {
       const { tokens } = await createUser(app)
       const user = await db.user.create({ data: getFakerUser() })
 
-      const updateData = {
-        firstname: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-      }
+      const updateData = updateUserData()
 
       return http(app)
         .put(uri + user.id)
@@ -223,10 +217,7 @@ describe('UsersController (e2e)', () => {
       const { tokens } = await createAdminUser(app)
       const user = await db.user.create({ data: getFakerUser() })
 
-      const updateData = {
-        firstname: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-      }
+      const updateData = updateUserData()
 
       await http(app)
         .put(uri + user.id)
@@ -360,6 +351,33 @@ describe('UsersController (e2e)', () => {
     })
   })
 
+  describe('@GET /users/@:username', () => {
+    const prefix = '/users/@'
+
+    it('should return 200 with user detail', async () => {
+      const { tokens } = await createUser(app)
+      const user = await db.user.create({ data: getFakerUser() })
+
+      return http(app)
+        .get(prefix + user.username)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject({
+            user: { ...modelFactory.make(UserClient, user) },
+          })
+        })
+    })
+
+    it('should return unauthorized if not logged in', async () => {
+      const user = await db.user.create({ data: getFakerUser() })
+
+      return http(app)
+        .get(prefix + user.username)
+        .expect(HttpStatus.UNAUTHORIZED)
+    })
+  })
+
   describe('@GET /users/:id', () => {
     const uri = '/users/'
 
@@ -471,7 +489,7 @@ describe('UsersController (e2e)', () => {
         .get(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
         .query({
-          firstname: checkUser.firstname,
+          fullName: checkUser.fullName,
         })
         .expect(HttpStatus.OK)
         .then(({ body }) => {
@@ -486,7 +504,7 @@ describe('UsersController (e2e)', () => {
         .get(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
         .query({
-          lastname: checkUser.lastname,
+          username: checkUser.username,
         })
         .expect(HttpStatus.OK)
         .then(({ body }) => {
@@ -501,8 +519,8 @@ describe('UsersController (e2e)', () => {
         .get(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
         .query({
-          firstname: checkUser.firstname,
-          lastname: checkUser.lastname,
+          fullName: checkUser.fullName,
+          username: checkUser.username,
         })
         .expect(HttpStatus.OK)
         .then(({ body }) => {
@@ -517,8 +535,8 @@ describe('UsersController (e2e)', () => {
         .get(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
         .query({
-          firstname: checkUser.firstname?.substring(0, 3),
-          lastname: checkUser.lastname?.substring(0, 3),
+          fullName: checkUser.fullName?.substring(0, 3),
+          username: checkUser.username?.substring(0, 3),
         })
         .expect(HttpStatus.OK)
         .then(({ body }) => {
@@ -559,21 +577,21 @@ describe('UsersController (e2e)', () => {
 
     it('should return 200 with updated own user info', async () => {
       const { user, tokens } = await createUser(app)
-      const firstname = faker.name.firstName()
-      const lastname = faker.name.lastName()
+      const fullName = faker.name.findName()
+      const username = faker.internet.userName()
       const email = faker.internet.email()
 
       return http(app)
         .put(uri)
         .auth(tokens.accessToken, { type: 'bearer' })
-        .send({ firstname, lastname, email })
+        .send({ fullName, username, email })
         .expect(HttpStatus.OK)
         .then(({ body }) => {
           expect(body).toMatchObject({
             id: user.id,
             email: user.email,
-            firstname,
-            lastname,
+            fullName,
+            username,
           })
         })
     })
@@ -583,10 +601,7 @@ describe('UsersController (e2e)', () => {
 
       return http(app)
         .put(uri)
-        .send({
-          firstname: faker.name.firstName(),
-          lastname: faker.name.lastName(),
-        })
+        .send(updateUserData())
         .expect(HttpStatus.UNAUTHORIZED)
     })
   })

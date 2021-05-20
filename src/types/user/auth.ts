@@ -38,18 +38,18 @@ export class RegisterDto {
   password!: string
 
   @ApiPropertyOptional({
-    description: "User's first name.",
+    description: "User's name.",
   })
   @IsOptional()
   @IsString()
-  firstname?: string
+  username?: string
 
   @ApiPropertyOptional({
-    description: "User's last name.",
+    description: "User's full name.",
   })
   @IsOptional()
   @IsString()
-  lastname?: string
+  fullName?: string
 
   @ApiPropertyOptional()
   @IsOptional()

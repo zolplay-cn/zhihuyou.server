@@ -31,15 +31,17 @@ import {
   UpdatePasswordSuccessfulResponse,
   UpdateRoleDto,
   UpdateUserDto,
+  UserClientResponse,
 } from '~/types/user/user'
 import { Role } from '@prisma/client'
 import { Roles } from '~/core/decorators/roles.decorator'
 import { AdminUserService } from '~/services/users/admin.service'
-import { User } from '~/models/user.model'
+import { User, UserClient } from '~/models/user.model'
 import { Serializer } from '~/core/decorators/serializer.decorator'
 import { UserService } from '~/services/users/user.service'
 import { Request } from '~/types/http'
 import { AuthGuard } from '~/guards/auth.guard'
+import modelFactory from '~/core/model/model.factory'
 
 @ApiTags('user')
 @UseGuards(AuthGuard)
@@ -119,6 +121,21 @@ export class UsersController {
     return await this.service.search(data)
   }
 
+  @Get('@:username')
+  @ApiOkResponse({ type: UserClientResponse })
+  @ApiNotFoundResponse({
+    description: 'No user found for username: ${username}',
+  })
+  async getUserByUser(@Param('username') username: string) {
+    const user = await this.userService.getUserByUsername(username)
+
+    //TODO: another user's summary data, like post count, user's profile, like count, comment count etc.
+
+    return {
+      user: modelFactory.make(UserClient, user),
+    }
+  }
+
   @Get(':id')
   @Roles(Role.ADMIN)
   @ApiOkResponse({ type: User })
@@ -136,7 +153,6 @@ export class UsersController {
   }
 
   @Put('update/me')
-  @Roles(Role.USER)
   @ApiBody({ type: UpdateUserDto })
   @ApiForbiddenResponse({ description: "You don't have the permission." })
   @ApiOperation({ summary: 'Updates own user info' })
@@ -147,7 +163,6 @@ export class UsersController {
   }
 
   @Put('my/password')
-  @Roles(Role.USER)
   @ApiBody({ type: UpdatePasswordDto })
   @ApiOperation({ summary: 'Updates own password' })
   @ApiOkResponse({ type: UpdatePasswordSuccessfulResponse })
