@@ -40,9 +40,9 @@ export class RegisterDto {
   @ApiPropertyOptional({
     description: "User's name.",
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  username?: string
+  username!: string
 
   @ApiPropertyOptional({
     description: "User's full name.",

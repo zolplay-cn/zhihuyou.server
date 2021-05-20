@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator'
 import { Role } from '@prisma/client'
-import { User, UserClient } from '~/models/user.model'
+import { UserClient } from '~/models/user.model'
 
 export class CreateUserDto {
   @ApiProperty()
@@ -28,9 +28,9 @@ export class CreateUserDto {
   fullName?: string
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  username?: string
+  username!: string
 
   @ApiProperty()
   @IsOptional()
@@ -111,7 +111,7 @@ export class ForceUpdateUserDto {
 export class SearchUserDto {
   @ApiProperty()
   @IsOptional()
-  @IsEmail()
+  @IsString()
   email?: string
 
   @ApiProperty()
@@ -129,8 +129,4 @@ export class UpdatePasswordSuccessfulResponse {
   @ApiProperty()
   @IsBoolean()
   data!: boolean
-}
-
-export class UserClientResponse {
-  user!: UserClient
 }

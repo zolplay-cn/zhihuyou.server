@@ -31,7 +31,6 @@ import {
   UpdatePasswordSuccessfulResponse,
   UpdateRoleDto,
   UpdateUserDto,
-  UserClientResponse,
 } from '~/types/user/user'
 import { Role } from '@prisma/client'
 import { Roles } from '~/core/decorators/roles.decorator'
@@ -122,7 +121,7 @@ export class UsersController {
   }
 
   @Get('@:username')
-  @ApiOkResponse({ type: UserClientResponse })
+  @ApiOkResponse({ type: UserClient })
   @ApiNotFoundResponse({
     description: 'No user found for username: ${username}',
   })
@@ -131,9 +130,7 @@ export class UsersController {
 
     //TODO: another user's summary data, like post count, user's profile, like count, comment count etc.
 
-    return {
-      user: modelFactory.make(UserClient, user),
-    }
+    return modelFactory.make(UserClient, user)
   }
 
   @Get(':id')

@@ -89,6 +89,25 @@ describe('UsersController (e2e)', () => {
         })
     })
 
+    it('should return conflict if username already exists', async () => {
+      const { tokens } = await createAdminUser(app)
+      const user = getFakerUser()
+
+      await db.user.create({ data: user })
+
+      return http(app)
+        .post(uri)
+        .send({
+          ...getFakerUser(),
+          username: user.username,
+        })
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.CONFLICT)
+        .then(({ body }) => {
+          expect(body.message).toBe(`username ${user.username} already exists.`)
+        })
+    })
+
     it('should return unauthorized if not logged in', async () => {
       return http(app)
         .post(uri)
@@ -109,6 +128,8 @@ describe('UsersController (e2e)', () => {
           expect(body.message).toMatchObject([
             'email must be an email',
             'email should not be empty',
+            'username must be a string',
+            'username should not be empty',
             'role must be a valid enum value',
           ])
         })
@@ -124,7 +145,10 @@ describe('UsersController (e2e)', () => {
 
       const userModel = await db.user.create({ data: user })
 
-      const updateData = updateUserData()
+      const updateData = {
+        ...updateUserData(),
+        username: userModel.username,
+      }
 
       return http(app)
         .put(uri + userModel.id)
@@ -153,6 +177,23 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
           expect(body.message).toBe('The User to update is not found.')
+        })
+    })
+
+    it('should return conflict if the operator to update username already exists', async () => {
+      const { user, tokens } = await createAdminUser(app)
+      const another = await db.user.create({ data: getFakerUser() })
+
+      return http(app)
+        .put(uri + another.id)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .send({
+          ...getFakerUser(),
+          username: user.username,
+        })
+        .expect(HttpStatus.CONFLICT)
+        .then(({ body }) => {
+          expect(body.message).toBe(`username ${user.username} already exists.`)
         })
     })
 
@@ -364,7 +405,27 @@ describe('UsersController (e2e)', () => {
         .expect(HttpStatus.OK)
         .then(({ body }) => {
           expect(body).toMatchObject({
-            user: { ...modelFactory.make(UserClient, user) },
+            ...modelFactory.make(UserClient, user),
+          })
+        })
+    })
+
+    it('should return 200 with user detail if @ chinese username', async () => {
+      const { tokens } = await createUser(app)
+      const user = await db.user.create({
+        data: {
+          ...getFakerUser(),
+          username: '我的名字',
+        },
+      })
+
+      return http(app)
+        .get(encodeURI(prefix + user.username))
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject({
+            ...modelFactory.make(UserClient, user),
           })
         })
     })
@@ -460,10 +521,9 @@ describe('UsersController (e2e)', () => {
     const uri = '/users/search'
 
     it('should return 200 with users array by search content', async () => {
-      const { user, tokens } = await createAdminUser(app)
+      const { tokens } = await createAdminUser(app)
       const users = []
 
-      users.push(user)
       for (const i of Array(10).fill('')) {
         users.push(await db.user.create({ data: getFakerUser() }))
       }
@@ -545,6 +605,125 @@ describe('UsersController (e2e)', () => {
               ...modelFactory.make(UserModel, checkUser),
             },
           ])
+        })
+    })
+
+    it('should return 200 with empty array if operator submit email is Nil', async () => {
+      const { tokens } = await createAdminUser(app)
+      const users = []
+
+      for (const i of Array(10).fill('')) {
+        users.push(await db.user.create({ data: getFakerUser() }))
+      }
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          email: null,
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          email: '',
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+    })
+
+    it('should return 200 with empty array if operator submit fullName is Nil', async () => {
+      const { tokens } = await createAdminUser(app)
+      const users = []
+
+      for (const i of Array(10).fill('')) {
+        users.push(await db.user.create({ data: getFakerUser() }))
+      }
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          fullName: null,
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          fullName: '',
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+    })
+
+    it('should return 200 with empty array if operator submit username is Nil', async () => {
+      const { tokens } = await createAdminUser(app)
+      const users = []
+
+      for (const i of Array(10).fill('')) {
+        users.push(await db.user.create({ data: getFakerUser() }))
+      }
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          username: null,
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({
+          username: '',
+        })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+    })
+
+    it('should return 200 with empty array if operator submit params is Nil', async () => {
+      const { tokens } = await createAdminUser(app)
+      const users = []
+
+      for (const i of Array(10).fill('')) {
+        users.push(await db.user.create({ data: getFakerUser() }))
+      }
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .query({})
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
+        })
+
+      await http(app)
+        .get(uri)
+        .auth(tokens.accessToken, { type: 'bearer' })
+        .expect(HttpStatus.OK)
+        .then(({ body }) => {
+          expect(body).toMatchObject([])
         })
     })
 

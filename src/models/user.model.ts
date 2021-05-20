@@ -25,7 +25,7 @@ export class User extends Model<UserObject> implements UserObject {
   fullName!: string | null
 
   @ApiProperty()
-  username!: string | null
+  username!: string
 
   @ApiProperty()
   role!: Role

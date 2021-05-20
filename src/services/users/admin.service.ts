@@ -17,6 +17,7 @@ import {
 } from '~/types/user/user'
 import { Prisma, User } from '@prisma/client'
 import { PrismaErrorCode } from '~/enums/PrismaErrorCode'
+import { isEmpty } from 'class-validator'
 
 const defaultPassword = 'zolran666'
 
@@ -55,10 +56,20 @@ export class AdminUserService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === PrismaErrorCode.Unique
       ) {
-        throw new ConflictException(`Email ${email} already exists.`)
-      } else {
-        throw new Error(e)
+        const meta: any = e.meta
+        if (meta && meta.target) {
+          switch (true) {
+            case meta.target.indexOf('username') !== -1:
+              throw new ConflictException(
+                `username ${data.username} already exists.`
+              )
+            default:
+              throw new ConflictException(`Email ${email} already exists.`)
+          }
+        }
       }
+
+      throw new Error(e)
     }
   }
 
@@ -77,11 +88,15 @@ export class AdminUserService {
         data,
       })
     } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === PrismaErrorCode.NotFound
-      ) {
-        throw new NotFoundException('The User to update is not found.')
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (true) {
+          case e.code === PrismaErrorCode.NotFound:
+            throw new NotFoundException('The User to update is not found.')
+          case e.code === PrismaErrorCode.Unique:
+            throw new ConflictException(
+              `username ${data.username} already exists.`
+            )
+        }
       }
 
       throw new Error(e)
@@ -187,8 +202,17 @@ export class AdminUserService {
    * @param data
    */
   async search(data: SearchUserDto): Promise<User[]> {
+    const conditions = this.searchWhere(data)
+
+    if (conditions.length === 0) {
+      return []
+    }
+
     return await this.db.user.findMany({
-      where: Object.assign({}, ...this.searchWhere(data)),
+      where: Object.assign({}, ...conditions),
+      orderBy: {
+        createdAt: 'desc',
+      },
     })
   }
 
@@ -199,10 +223,18 @@ export class AdminUserService {
    * @private
    */
   private searchWhere(data: SearchUserDto): object[] {
-    return Object.entries(data).map((item) => {
-      return Object.fromEntries([
-        [item[0], Object.fromEntries([['contains', item[1]]])],
-      ])
-    })
+    return Object.entries(data)
+      .filter((item) => {
+        const [, value] = item
+
+        return !isEmpty(value)
+      })
+      .map((item) => {
+        const [key, value] = item
+
+        return Object.fromEntries([
+          [key, Object.fromEntries([['contains', value]])],
+        ])
+      })
   }
 }
