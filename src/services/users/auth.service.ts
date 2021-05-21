@@ -109,7 +109,7 @@ export class AuthService {
           switch (true) {
             case meta.target.indexOf('username') !== -1:
               throw new ConflictException(
-                `username ${rest.username} already exists.`
+                `Username ${rest.username} already exists.`
               )
             default:
               throw new ConflictException(`Email ${email} already exists.`)

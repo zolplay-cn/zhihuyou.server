@@ -61,7 +61,7 @@ export class AdminUserService {
           switch (true) {
             case meta.target.indexOf('username') !== -1:
               throw new ConflictException(
-                `username ${data.username} already exists.`
+                `Username ${data.username} already exists.`
               )
             default:
               throw new ConflictException(`Email ${email} already exists.`)
@@ -91,10 +91,10 @@ export class AdminUserService {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         switch (true) {
           case e.code === PrismaErrorCode.NotFound:
-            throw new NotFoundException('The User to update is not found.')
+            throw new NotFoundException('The user cannot be found.')
           case e.code === PrismaErrorCode.Unique:
             throw new ConflictException(
-              `username ${data.username} already exists.`
+              `Username ${data.username} already exists.`
             )
         }
       }

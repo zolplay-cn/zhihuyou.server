@@ -104,7 +104,7 @@ describe('UsersController (e2e)', () => {
         .auth(tokens.accessToken, { type: 'bearer' })
         .expect(HttpStatus.CONFLICT)
         .then(({ body }) => {
-          expect(body.message).toBe(`username ${user.username} already exists.`)
+          expect(body.message).toBe(`Username ${user.username} already exists.`)
         })
     })
 
@@ -176,7 +176,7 @@ describe('UsersController (e2e)', () => {
         .send(updateData)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe('The User to update is not found.')
+          expect(body.message).toBe('The user cannot be found.')
         })
     })
 
@@ -193,7 +193,7 @@ describe('UsersController (e2e)', () => {
         })
         .expect(HttpStatus.CONFLICT)
         .then(({ body }) => {
-          expect(body.message).toBe(`username ${user.username} already exists.`)
+          expect(body.message).toBe(`Username ${user.username} already exists.`)
         })
     })
 

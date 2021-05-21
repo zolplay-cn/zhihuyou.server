@@ -280,7 +280,7 @@ describe('AuthController (e2e)', () => {
         })
         .expect(HttpStatus.CONFLICT)
         .then(({ body }) => {
-          expect(body.message).toBe(`username ${username} already exists.`)
+          expect(body.message).toBe(`Username ${username} already exists.`)
         })
     })
 
