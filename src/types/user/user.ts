@@ -9,6 +9,7 @@ import {
   MinLength,
 } from 'class-validator'
 import { Role } from '@prisma/client'
+import { UserClient } from '~/models/user.model'
 
 export class CreateUserDto {
   @ApiProperty()
@@ -24,12 +25,12 @@ export class CreateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  firstname?: string
+  fullName?: string
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  lastname?: string
+  username!: string
 
   @ApiProperty()
   @IsOptional()
@@ -41,12 +42,12 @@ export class UpdateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  firstname?: string
+  fullName?: string
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  lastname?: string
+  username?: string
 }
 
 export class ForceUpdatePasswordDto {
@@ -94,12 +95,12 @@ export class ForceUpdateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  firstname?: string
+  fullName?: string
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  lastname?: string
+  username?: string
 
   @ApiProperty()
   @IsOptional()
@@ -110,18 +111,18 @@ export class ForceUpdateUserDto {
 export class SearchUserDto {
   @ApiProperty()
   @IsOptional()
-  @IsEmail()
+  @IsString()
   email?: string
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  firstname?: string
+  fullName?: string
 
   @ApiProperty()
   @IsOptional()
   @IsString()
-  lastname?: string
+  username?: string
 }
 
 export class UpdatePasswordSuccessfulResponse {

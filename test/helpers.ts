@@ -48,8 +48,7 @@ export async function createUser(app: INestApplication) {
   const user = await db.user.create({
     data: {
       email,
-      firstname: faker.name.firstName(),
-      lastname: faker.name.lastName(),
+      username: faker.internet.userName(),
       password: await app.get(HashService).make(password),
     },
   })

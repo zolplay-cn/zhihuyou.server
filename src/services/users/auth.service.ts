@@ -21,6 +21,7 @@ import {
 import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 import { User } from '~/models/user.model'
 import { isNil } from 'lodash'
+import { PrismaErrorCode } from '~/enums/PrismaErrorCode'
 
 @Injectable()
 export class AuthService {
@@ -101,12 +102,22 @@ export class AuthService {
       /* istanbul ignore else */
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2002'
+        e.code === PrismaErrorCode.Unique
       ) {
-        throw new ConflictException(`Email ${email} already exists.`)
-      } else {
-        throw new Error(e)
+        const meta: any = e.meta
+        if (meta && meta.target) {
+          switch (true) {
+            case meta.target.indexOf('username') !== -1:
+              throw new ConflictException(
+                `Username ${rest.username} already exists.`
+              )
+            default:
+              throw new ConflictException(`Email ${email} already exists.`)
+          }
+        }
       }
+
+      throw new Error(e)
     }
   }
 
