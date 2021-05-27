@@ -1,19 +1,18 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common'
-import { DatabaseService } from '~/services/database.service'
 import { CreatePostDto, UpdatePostDto } from '~/types/post'
 import modelFactory from '~/core/model/model.factory'
 import { Post } from '~/models/post.model'
+import { CoreService } from '~/services/common/core.service'
 
 @Injectable()
-export class PostsService {
-  @Inject()
-  private readonly db!: DatabaseService
+export class PostsService extends CoreService {
+  protected getLangUseModel(): string {
+    return 'Post'
+  }
 
   /**
    * Creates a new post.
@@ -47,12 +46,14 @@ export class PostsService {
     const post = await this.db.post.findFirst({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.id', { args: { id } })
+      )
     }
 
     if (post.authorId !== authorId) {
-      throw new UnauthorizedException(
-        "You don't have the permission to update this post."
+      throw new BadRequestException(
+        await this.lang.get('error.bad_request.update')
       )
     }
 
@@ -74,12 +75,14 @@ export class PostsService {
     const post = await this.db.post.findUnique({ where: { id } })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.id', { args: { id } })
+      )
     }
 
     if (post.authorId !== authorId) {
       throw new BadRequestException(
-        "You don't have the permission to delete this post."
+        await this.lang.get('error.bad_request.delete')
       )
     }
 
@@ -104,7 +107,9 @@ export class PostsService {
     })
 
     if (!post) {
-      throw new NotFoundException(`Post cannot be found for id: ${id}.`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.id', { args: { id } })
+      )
     }
 
     return new Post(post)

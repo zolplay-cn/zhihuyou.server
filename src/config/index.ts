@@ -19,6 +19,9 @@ const config: Config = {
     bcryptSaltOrRound: 10,
     jwtSecret: process.env.JWT_SECRET || '',
   },
+  [ConfigKey.I18n]: {
+    defaultLanguage: 'en',
+  },
 }
 
 export default (): Config => config

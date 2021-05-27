@@ -9,6 +9,9 @@ import { authTokenKey } from '~/types/user/auth'
 import { DatabaseService } from '~/services/database.service'
 import * as request from 'supertest'
 import { Role } from '@prisma/client'
+import { ValidationError } from 'class-validator'
+import { ValidationException } from '~/exceptions/validation.exception'
+import { I18nService } from 'nestjs-i18n'
 
 /**
  * Bootstraps and sets up the nest app.
@@ -27,6 +30,8 @@ export async function setupNestApp() {
       validationError: {
         target: false,
       },
+      exceptionFactory: async (errors: ValidationError[]) =>
+        await new ValidationException(app.get(I18nService)).generate(errors),
     })
   )
 

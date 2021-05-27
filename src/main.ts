@@ -6,6 +6,9 @@ import { AppConfig, ConfigKey, CorsConfig } from './config/config.interface'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import * as helmet from 'helmet'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ValidationError } from 'class-validator'
+import { ValidationException } from '~/exceptions/validation.exception'
+import { I18nService } from 'nestjs-i18n'
 
 async function main() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
@@ -43,6 +46,8 @@ async function main() {
       validationError: {
         target: false,
       },
+      exceptionFactory: async (errors: ValidationError[]) =>
+        await new ValidationException(app.get(I18nService)).generate(errors),
     })
   )
 

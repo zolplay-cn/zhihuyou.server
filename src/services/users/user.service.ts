@@ -4,18 +4,19 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
 import { UpdatePasswordDto, UpdateUserDto } from '~/types/user/user'
 import { User } from '@prisma/client'
+import { CoreService } from '~/services/common/core.service'
 
 @Injectable()
-export class UserService {
-  @Inject()
-  private readonly db!: DatabaseService
-
+export class UserService extends CoreService {
   @Inject()
   private readonly hash!: HashService
+
+  protected getLangUseModel(): string {
+    return 'User'
+  }
 
   /**
    * Updates own firstname or lastname.
@@ -38,7 +39,7 @@ export class UserService {
     const user = await this.getUser(id)
 
     if (!(await this.hash.validate(data.currentPassword, user.password))) {
-      throw new BadRequestException('password is incorrect')
+      throw new BadRequestException(await this.lang.get('error.password'))
     }
 
     return await this.db.user.update({
@@ -58,7 +59,9 @@ export class UserService {
     const user = await this.db.user.findUnique({ where: { id } })
 
     if (!user) {
-      throw new NotFoundException(`No user found for id: ${id}`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.id', { args: { id } })
+      )
     }
 
     return user
@@ -73,7 +76,9 @@ export class UserService {
     const user = await this.db.user.findUnique({ where: { username } })
 
     if (!user) {
-      throw new NotFoundException(`No user found for username: ${username}`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.username', { args: { username } })
+      )
     }
 
     return user

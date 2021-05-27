@@ -4,10 +4,12 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
 import { ProfileClient } from '~/models/profile.model'
 import { ProfileStatusClient } from '~/models/profile-status.model'
+import { Type } from 'class-transformer'
 
 export class SaveProfileDto {
   @ApiProperty()
@@ -55,12 +57,15 @@ export class CreateProfileStatusDto extends SaveProfileStatusDto {
 export class SaveProfileWithStatusDto {
   @ApiProperty()
   @IsOptional()
-  @IsObject()
+  @ValidateNested()
+  @Type(() => SaveProfileDto)
   profile?: SaveProfileDto
 
   @ApiProperty()
   @IsOptional()
   @IsObject()
+  @ValidateNested()
+  @Type(() => SaveProfileStatusDto)
   status?: SaveProfileStatusDto
 }
 

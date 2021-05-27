@@ -1,0 +1,19 @@
+{
+  "not_found": {
+    "id": "{model} cannot be found for id: {id}.",
+    "email": "{model} cannot be found for email: {email}",
+    "username": "No user found for username: {username}",
+    "delete": "The {model} to delete does not exist.",
+    "update": "The {model} to update does not exist."
+  },
+  "bad_request": {
+    "update": "You don't have the permission to update this {model}.",
+    "delete": "You don't have the permission to delete this {model}."
+  },
+  "conflict": {
+    "username": "Username {username} already exists.",
+    "email": "Email {email} already exists."
+  },
+  "password": "Password is incorrect",
+  "login": "Invalid credentials"
+}

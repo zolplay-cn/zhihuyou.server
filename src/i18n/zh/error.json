@@ -1,0 +1,19 @@
+{
+  "not_found": {
+    "id": "没有找到id为{id}的{model}.",
+    "email": "没有找到邮箱为{email}的{model}",
+    "username": "没有找到username为{username}的用户记录.",
+    "update": "要更新的{model}不存在.",
+    "delete": "要删除的{model}不存在."
+  },
+  "bad_request": {
+    "update": "你没有权限更新该{model}.",
+    "delete": "你没有权限删除该{model}."
+  },
+  "conflict": {
+    "username": "用户名{username}已经存在.",
+    "email": "邮箱{email}已经存在."
+  },
+  "password": "密码不正确.",
+  "login": "用户名或密码不正确."
+}

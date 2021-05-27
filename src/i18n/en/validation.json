@@ -1,0 +1,9 @@
+{
+  "isNotEmpty": "{property} should not be empty",
+  "isString": "{property} must be a string",
+  "isNumber": "{property} must be a number",
+  "isEmail": "{property} must be an email",
+  "isBoolean": "{property} must be a boolean value",
+  "isEnum": "{property} must be a valid enum value",
+  "minLength": "{property} must be longer than or equal to {min} characters"
+}

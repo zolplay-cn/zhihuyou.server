@@ -176,7 +176,7 @@ describe('UsersController (e2e)', () => {
         .send(updateData)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe('The user cannot be found.')
+          expect(body.message).toBe('The User to update does not exist.')
         })
     })
 
@@ -824,7 +824,7 @@ describe('UsersController (e2e)', () => {
         })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe('password is incorrect')
+          expect(body.message).toBe('Password is incorrect')
         })
     })
 

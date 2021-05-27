@@ -109,7 +109,7 @@ describe('AuthController (e2e)', () => {
         .send({ email, password: 'password' })
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe(`No user found for email: ${email}`)
+          expect(body.message).toBe(`User cannot be found for email: ${email}`)
         })
     })
 
