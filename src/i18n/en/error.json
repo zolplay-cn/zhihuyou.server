@@ -14,6 +14,6 @@
     "username": "Username {username} already exists.",
     "email": "Email {email} already exists."
   },
-  "password": "password is incorrect",
+  "password": "Password is incorrect",
   "login": "Invalid credentials"
 }

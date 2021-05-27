@@ -23,13 +23,13 @@ export class ValidationException {
     const errors = iterate(validationErrors)
       .map((error) => this.mapChildrenToValidationErrors(error))
       .flatten()
-      .filter((item) => !!item.constraints)
+      .filter((item) => Boolean(item.constraints))
       .toArray()
 
     const result = []
 
-    for (const item in errors) {
-      result.push(await this.prependConstraints(errors[item]))
+    for (const error of errors) {
+      result.push(await this.prependConstraints(error))
     }
 
     return iterate(result)
@@ -73,8 +73,8 @@ export class ValidationException {
   protected async prependConstraints(
     error: ValidationError
   ): Promise<ValidationError> {
-    const constraints: any = {}
-    // console.log(error)
+    const constraints: Record<string, any> = {}
+
     for (const key in error.constraints) {
       constraints[key] = await this.getConstraint(
         error.property,

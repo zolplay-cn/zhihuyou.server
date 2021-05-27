@@ -66,7 +66,7 @@ export class PostsController {
   @ApiBody({ type: UpdatePostDto, required: false })
   @ApiOkResponse({ type: PostModel })
   @ApiBadRequestResponse({
-    description: "When ths user doesn't have the permission to update.",
+    description: "When the user doesn't have permission to update.",
   })
   @ApiNotFoundResponse({ description: 'When the post is not found.' })
   @ApiOperation({ summary: 'Update a post' })
@@ -84,7 +84,7 @@ export class PostsController {
   @ApiOkResponse({ type: DeletePostResponse })
   @ApiNotFoundResponse({ description: 'When the post is not found.' })
   @ApiBadRequestResponse({
-    description: "When ths user doesn't have the permission to delete.",
+    description: "When the user doesn't have permission to delete.",
   })
   @ApiUnauthorizedResponse({ description: 'When the user is not logged in.' })
   @ApiOperation({ summary: 'Delete a post' })

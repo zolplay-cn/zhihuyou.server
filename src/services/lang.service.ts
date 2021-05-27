@@ -5,7 +5,7 @@ import { TranslationParams } from '~/enums/TranslationParams'
 /**
  * 处理器白名单
  */
-const handlerWhite = ['model', 'lang']
+const handlerWhiteList = ['model', 'lang']
 
 @Injectable()
 export class LangService {
@@ -31,7 +31,7 @@ export class LangService {
   }
 
   private joinArgs(options?: translateOptions): translateOptions {
-    for (const handler of handlerWhite) {
+    for (const handler of handlerWhiteList) {
       // @ts-ignore
       if (this[handler]) {
         // @ts-ignore

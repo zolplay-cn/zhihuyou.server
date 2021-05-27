@@ -824,7 +824,7 @@ describe('UsersController (e2e)', () => {
         })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe('password is incorrect')
+          expect(body.message).toBe('Password is incorrect')
         })
     })
 
