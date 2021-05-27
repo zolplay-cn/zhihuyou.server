@@ -187,7 +187,9 @@ describe('ProfileController (e2e)', () => {
         .send({ status })
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
-          expect(body.message).toBe('clearInterval must be a number')
+          expect(body.message).toMatchObject([
+            'status.clearInterval must be a number',
+          ])
         })
     })
 

@@ -1,0 +1,9 @@
+{
+  "isNotEmpty": "{property} 不可为空",
+  "isString": "{property} 必须是字符串",
+  "isNumber": "{property} 必须是数字",
+  "isEmail": "{property} 必须是邮箱格式",
+  "isBoolean": "{property} 必须是布尔型",
+  "isEnum": "{property} 必须是验证通过的枚举字段",
+  "minLength": "{property} 必须大于或等于 {min} 字符"
+}

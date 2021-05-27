@@ -176,7 +176,7 @@ describe('UsersController (e2e)', () => {
         .send(updateData)
         .expect(HttpStatus.NOT_FOUND)
         .then(({ body }) => {
-          expect(body.message).toBe('The user cannot be found.')
+          expect(body.message).toBe('The User to update does not exist.')
         })
     })
 

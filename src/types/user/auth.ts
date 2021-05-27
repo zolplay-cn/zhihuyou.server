@@ -7,6 +7,7 @@ import {
   MinLength,
 } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { TranslationParams } from '~/enums/TranslationParams'
 
 export class LoginDto {
   @ApiProperty()
@@ -33,7 +34,7 @@ export class RegisterDto {
 
   @ApiProperty()
   @IsNotEmpty()
-  @MinLength(6)
+  @MinLength(6, { context: { [TranslationParams.min]: 6 } })
   @IsString()
   password!: string
 

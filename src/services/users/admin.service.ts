@@ -4,7 +4,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
 import {
   CreateUserDto,
@@ -18,16 +17,18 @@ import {
 import { Prisma, User } from '@prisma/client'
 import { PrismaErrorCode } from '~/enums/PrismaErrorCode'
 import { isEmpty } from 'class-validator'
+import { CoreService } from '~/services/common/core.service'
 
 const defaultPassword = 'zolran666'
 
 @Injectable()
-export class AdminUserService {
-  @Inject()
-  private readonly db!: DatabaseService
-
+export class AdminUserService extends CoreService {
   @Inject()
   private readonly hash!: HashService
+
+  protected getLangUseModel(): string {
+    return 'User'
+  }
 
   /**
    * Creates a user.
@@ -61,10 +62,14 @@ export class AdminUserService {
           switch (true) {
             case meta.target.indexOf('username') !== -1:
               throw new ConflictException(
-                `Username ${data.username} already exists.`
+                await this.lang.get('error.conflict.username', {
+                  args: { username: data.username },
+                })
               )
             default:
-              throw new ConflictException(`Email ${email} already exists.`)
+              throw new ConflictException(
+                await this.lang.get('error.conflict.email', { args: { email } })
+              )
           }
         }
       }
@@ -91,10 +96,14 @@ export class AdminUserService {
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         switch (true) {
           case e.code === PrismaErrorCode.NotFound:
-            throw new NotFoundException('The user cannot be found.')
+            throw new NotFoundException(
+              await this.lang.get('error.not_found.update')
+            )
           case e.code === PrismaErrorCode.Unique:
             throw new ConflictException(
-              `Username ${data.username} already exists.`
+              await this.lang.get('error.conflict.username', {
+                args: { username: data.username },
+              })
             )
         }
       }
@@ -163,7 +172,9 @@ export class AdminUserService {
         e instanceof Prisma.PrismaClientKnownRequestError &&
         e.code === PrismaErrorCode.NotFound
       ) {
-        throw new NotFoundException('The User to delete does not exist.')
+        throw new NotFoundException(
+          await this.lang.get('error.not_found.delete')
+        )
       }
 
       throw new Error(e)
@@ -179,7 +190,9 @@ export class AdminUserService {
     const user = await this.db.user.findUnique({ where: { id } })
 
     if (!user) {
-      throw new NotFoundException(`The User Cannot be found for id: ${id}`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.id', { args: { id } })
+      )
     }
 
     return user

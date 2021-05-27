@@ -215,10 +215,10 @@ describe('PostsController (e2e)', () => {
         .put(uri + post.id)
         .auth(tokens.accessToken, { type: 'bearer' })
         .send(form)
-        .expect(HttpStatus.UNAUTHORIZED)
+        .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
           expect(body.message).toBe(
-            "You don't have the permission to update this post."
+            "You don't have the permission to update this Post."
           )
         })
     })
@@ -299,7 +299,7 @@ describe('PostsController (e2e)', () => {
         .expect(HttpStatus.BAD_REQUEST)
         .then(({ body }) => {
           expect(body.message).toBe(
-            "You don't have the permission to delete this post."
+            "You don't have the permission to delete this Post."
           )
         })
     })

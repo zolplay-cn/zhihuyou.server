@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator'
 import { Role } from '@prisma/client'
-import { UserClient } from '~/models/user.model'
+import { TranslationParams } from '~/enums/TranslationParams'
 
 export class CreateUserDto {
   @ApiProperty()
@@ -54,7 +54,7 @@ export class ForceUpdatePasswordDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { context: { [TranslationParams.min]: 6 } })
   password!: string
 }
 
@@ -62,7 +62,7 @@ export class UpdatePasswordDto extends ForceUpdatePasswordDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { context: { [TranslationParams.min]: 6 } })
   currentPassword!: string
 }
 
@@ -89,7 +89,7 @@ export class ForceUpdateUserDto {
   @ApiProperty()
   @IsOptional()
   @IsString()
-  @MinLength(6)
+  @MinLength(6, { context: { [TranslationParams.min]: 6 } })
   password?: string
 
   @ApiProperty()

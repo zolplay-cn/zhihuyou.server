@@ -8,9 +8,7 @@ import {
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Prisma } from '@prisma/client'
-import { DatabaseService } from '~/services/database.service'
 import { HashService } from '~/services/security/hash.service'
-import { ConfigService } from '@nestjs/config'
 import {
   AuthToken,
   authTokenKey,
@@ -22,20 +20,19 @@ import { ConfigKey, SecurityConfig } from '~/config/config.interface'
 import { User } from '~/models/user.model'
 import { isNil } from 'lodash'
 import { PrismaErrorCode } from '~/enums/PrismaErrorCode'
+import { CoreService } from '~/services/common/core.service'
 
 @Injectable()
-export class AuthService {
+export class AuthService extends CoreService {
   @Inject()
   private readonly jwt!: JwtService
 
   @Inject()
-  private readonly db!: DatabaseService
-
-  @Inject()
   private readonly hash!: HashService
 
-  @Inject()
-  private readonly config!: ConfigService
+  protected getLangUseModel(): string {
+    return 'User'
+  }
 
   /**
    * Logs a user in.
@@ -59,11 +56,13 @@ export class AuthService {
     })
 
     if (!user) {
-      throw new NotFoundException(`No user found for email: ${email}`)
+      throw new NotFoundException(
+        await this.lang.get('error.not_found.email', { args: { email } })
+      )
     }
 
     if (!(await this.hash.validate(password, user.password))) {
-      throw new BadRequestException('Invalid credentials')
+      throw new BadRequestException(await this.lang.get('error.login'))
     }
 
     return this.generateToken({ [authTokenKey]: user.id }, remembers)
@@ -109,10 +108,14 @@ export class AuthService {
           switch (true) {
             case meta.target.indexOf('username') !== -1:
               throw new ConflictException(
-                `Username ${rest.username} already exists.`
+                await this.lang.get('error.conflict.username', {
+                  args: { username: rest.username },
+                })
               )
             default:
-              throw new ConflictException(`Email ${email} already exists.`)
+              throw new ConflictException(
+                await this.lang.get('error.conflict.email', { args: { email } })
+              )
           }
         }
       }
